@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, LayoutDashboard, Zap, BarChart2,
@@ -115,6 +115,7 @@ function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: bo
         </button>
       </div>
     </aside>
+  </>
   );
 }
 
