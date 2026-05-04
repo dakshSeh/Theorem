@@ -260,7 +260,9 @@ export default function LandingPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}
           >
-            <HeroOrb />
+            <div className="scale-75 sm:scale-90 md:scale-100 origin-center">
+              <HeroOrb />
+            </div>
           </motion.div>
         </div>
       </section>

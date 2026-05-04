@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/saved', icon: BookMarked, label: 'Saved Sets' },
 ];
 
-function Sidebar({ userName }: { userName: string }) {
+function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: boolean, setIsOpen: (val: boolean) => void }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -28,15 +28,36 @@ function Sidebar({ userName }: { userName: string }) {
   }
 
   return (
-    <aside className="sidebar">
-      {/* Logo */}
-      <div style={{ padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid var(--border)' }}>
+    <>
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            style={{
+              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.5)', zIndex: 40,
+            }}
+            className="md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        {/* Logo and close button */}
+        <div style={{ padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
           <div style={{ width: 28, height: 28, background: 'var(--ember)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Flame size={15} color="#fff" />
           </div>
           <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>Theorem</span>
         </Link>
+        <button className="btn btn-ghost btn-icon md:hidden" onClick={() => setIsOpen(false)} style={{ padding: '0.25rem' }}>
+          <X size={18} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -98,12 +119,35 @@ function Sidebar({ userName }: { userName: string }) {
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  // We pass user name as prop from server — here we use a placeholder (client comp)
-  // The actual name is fetched in the page components
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   return (
     <div className="app-layout">
-      <Sidebar userName="" />
+      <Sidebar userName="" isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <main className="main-content">
+        {/* Mobile top nav */}
+        <div className="md:hidden" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)',
+          background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 30
+        }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+            <div style={{ width: 24, height: 24, background: 'var(--ember)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Flame size={14} color="#fff" />
+            </div>
+            <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text)' }}>Theorem</span>
+          </Link>
+          <button className="btn btn-ghost btn-icon" onClick={() => setSidebarOpen(true)}>
+            <Menu size={20} />
+          </button>
+        </div>
+        
         {children}
       </main>
     </div>
