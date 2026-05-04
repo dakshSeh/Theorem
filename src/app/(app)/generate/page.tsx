@@ -174,7 +174,7 @@ export default function GeneratePage() {
           />
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           {/* Left: Upload + Preview */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="card">

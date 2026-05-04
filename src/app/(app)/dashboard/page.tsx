@@ -98,7 +98,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Content grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Recent Uploads */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card" style={{ gridColumn: '1' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
