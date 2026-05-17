@@ -1,19 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Flame, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function SignupPage() {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,8 +28,8 @@ export default function SignupPage() {
       },
     });
     if (err) { setError(err.message); setLoading(false); return; }
-    router.push('/dashboard');
-    router.refresh();
+    setSuccess(true);
+    setLoading(false);
   }
 
   return (
@@ -61,8 +60,21 @@ export default function SignupPage() {
         </div>
 
         <div className="auth-card">
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.375rem' }}>Create your account</h2>
-          <p style={{ fontSize: '0.875rem', marginBottom: '1.75rem' }}>Start forging smarter assessments</p>
+          {success ? (
+            <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+              <Mail size={40} color="var(--ember)" style={{ margin: '0 auto 1rem' }} />
+              <h2 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>Check your email</h2>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+                We&apos;ve sent a confirmation link to <strong>{email}</strong>. Please click the link to confirm your account before logging in.
+              </p>
+              <Link href="/login" className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+                Return to Login
+              </Link>
+            </div>
+          ) : (
+            <>
+              <h2 style={{ fontSize: '1.5rem', marginBottom: '0.375rem' }}>Create your account</h2>
+              <p style={{ fontSize: '0.875rem', marginBottom: '1.75rem' }}>Start forging smarter assessments</p>
 
           {error && (
             <div style={{
@@ -119,6 +131,8 @@ export default function SignupPage() {
             Already have an account?{' '}
             <Link href="/login" style={{ color: 'var(--ember)', fontWeight: 600 }}>Sign in</Link>
           </p>
+            </>
+          )}
         </div>
       </motion.div>
     </div>

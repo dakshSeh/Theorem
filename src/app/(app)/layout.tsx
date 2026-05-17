@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, LayoutDashboard, Zap, BarChart2,
   BookMarked, LogOut, User, Menu, X, ChevronRight,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const NAV_ITEMS = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -87,24 +88,27 @@ function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: bo
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.6rem',
-          padding: '0.6rem 0.875rem',
-          background: 'var(--surface-2)', borderRadius: 'var(--radius)',
-        }}>
+      <div style={{ padding: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{
-            width: 28, height: 28, borderRadius: '50%',
-            background: 'var(--ember-subtle)', border: '1px solid var(--ember-border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            flex: 1, display: 'flex', alignItems: 'center', gap: '0.6rem',
+            padding: '0.6rem 0.875rem',
+            background: 'var(--surface-2)', borderRadius: 'var(--radius)',
           }}>
-            <User size={14} color="var(--ember)" />
-          </div>
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {userName || 'Student'}
+            <div style={{
+              width: 28, height: 28, borderRadius: '50%',
+              background: 'var(--ember-subtle)', border: '1px solid var(--ember-border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <User size={14} color="var(--ember)" />
+            </div>
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {userName || 'Student'}
+              </div>
             </div>
           </div>
+          <ThemeToggle />
         </div>
         <button
           onClick={handleSignOut}
@@ -123,10 +127,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close sidebar on route change
-  useEffect(() => {
+  // Close sidebar on route change during render
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setSidebarOpen(false);
-  }, [pathname]);
+  }
 
   return (
     <div className="app-layout">

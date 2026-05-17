@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Play, BookOpen, Clock, X } from 'lucide-react';
+import { ArrowLeft, Play, Clock, X } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import QuizRunner, { type SessionResult } from '@/components/quiz/QuizRunner';

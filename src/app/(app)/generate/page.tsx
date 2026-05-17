@@ -1,6 +1,6 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Download, BookOpen, Play, Zap, AlertCircle, X } from 'lucide-react';
 import UploadZone from '@/components/forge/UploadZone';
 import GeneratorControls from '@/components/generator/GeneratorControls';

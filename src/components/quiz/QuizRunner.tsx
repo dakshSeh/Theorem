@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, CheckCircle, XCircle, ChevronRight, Award } from 'lucide-react';
 import type { Question, QuizMode, MCQOption } from '@/lib/types';
@@ -24,9 +24,23 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
   const [selected, setSelected] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [totalTime, setTotalTime] = useState(0);
   const [timeLeft, setTimeLeft] = useState(timeLimitMinutes * 60);
-  const startTime = useRef(Date.now());
-  const questionStart = useRef(Date.now());
+  const startTime = useRef<number>(0);
+  const questionStart = useRef<number>(0);
+
+  // Initialize timestamps on mount only
+  useEffect(() => {
+    startTime.current = Date.now();
+    questionStart.current = Date.now();
+  }, []);
+
+  const handleFinish = useCallback((finalAnswers = answers) => {
+    setFinished(true);
+    setTotalTime(Math.round((Date.now() - startTime.current) / 1000));
+    onComplete(finalAnswers);
+  }, [answers, onComplete]);
+
 
   // Exam mode timer
   useEffect(() => {
@@ -38,8 +52,8 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
       });
     }, 1000);
     return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, [mode, handleFinish]);
+
 
   const q = questions[current];
   const isMCQ = q?.question_type === 'mcq';
@@ -78,10 +92,6 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
     }
   };
 
-  const handleFinish = (finalAnswers = answers) => {
-    setFinished(true);
-    onComplete(finalAnswers);
-  };
 
   const getOptionStyle = (opt: MCQOption) => {
     if (!revealed) return {
@@ -106,7 +116,6 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
 
   if (finished) {
     const correct = answers.filter(a => a.isCorrect).length;
-    const totalTime = Math.round((Date.now() - startTime.current) / 1000);
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}

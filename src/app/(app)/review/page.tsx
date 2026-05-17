@@ -56,15 +56,16 @@ export default function ReviewPage() {
   }));
 
   // Subject performance (by quiz set subject)
-  const subjectMap: Record<string, { total: number; correct: number }> = {};
+  const subjectMap: Record<string, { count: number; totalAccuracy: number }> = {};
   sessions.forEach(s => {
+    if (s.accuracy === null) return;
     const subject = s.quiz_sets?.subject || 'Unknown';
-    if (!subjectMap[subject]) subjectMap[subject] = { total: 0, correct: 0 };
-    subjectMap[subject].total += 1;
-    if ((s.accuracy || 0) > 70) subjectMap[subject].correct += 1;
+    if (!subjectMap[subject]) subjectMap[subject] = { count: 0, totalAccuracy: 0 };
+    subjectMap[subject].count += 1;
+    subjectMap[subject].totalAccuracy += s.accuracy;
   });
-  const subjectData = Object.entries(subjectMap).map(([subject, { total, correct }]) => ({
-    subject, accuracy: total > 0 ? Math.round((correct / total) * 100) : 0, sessions: total,
+  const subjectData = Object.entries(subjectMap).map(([subject, { count, totalAccuracy }]) => ({
+    subject, accuracy: count > 0 ? Math.round(totalAccuracy / count) : 0, sessions: count,
   })).sort((a, b) => b.accuracy - a.accuracy);
 
   const COLORS = ['var(--ember)', '#ff9551', '#b34d0f', '#6b6b6b'];
@@ -110,12 +111,13 @@ export default function ReviewPage() {
           <Link href="/generate" className="btn btn-primary">Start practising</Link>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Accuracy trend */}
-          {chartData.length > 1 && (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card" style={{ gridColumn: '1 / -1' }}>
+          {chartData.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card md:col-span-2" style={{ minWidth: 0, overflow: 'hidden' }}>
               <h3 style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>Accuracy Trend</h3>
-              <ResponsiveContainer width="100%" height={200}>
+              <div style={{ width: '100%', minHeight: 200 }}>
+                <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 11 }} />
@@ -127,19 +129,21 @@ export default function ReviewPage() {
                   <Line type="monotone" dataKey="accuracy" stroke="var(--ember)" strokeWidth={2} dot={{ fill: 'var(--ember)', r: 4 }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
+              </div>
             </motion.div>
           )}
 
           {/* Subject performance */}
           {subjectData.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card" style={{ minWidth: 0, overflow: 'hidden' }}>
               <h3 style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>Subject Performance</h3>
-              <ResponsiveContainer width="100%" height={180}>
+              <div style={{ width: '100%', minHeight: 180 }}>
+                <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={subjectData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                   <XAxis type="number" domain={[0, 100]} stroke="var(--text-muted)" tick={{ fontSize: 10 }} unit="%" />
                   <YAxis dataKey="subject" type="category" stroke="var(--text-muted)" tick={{ fontSize: 10 }} width={80} />
-                  <Tooltip contentStyle={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: 12 }} formatter={(v) => [`${v}%`, 'High-score rate']} />
+                  <Tooltip contentStyle={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: 12 }} formatter={(v) => [`${v}%`, 'Avg Accuracy']} />
                   <Bar dataKey="accuracy" radius={[0, 4, 4, 0]}>
                     {subjectData.map((_, index) => (
                       <Cell key={index} fill={COLORS[index % COLORS.length]} />
@@ -147,11 +151,12 @@ export default function ReviewPage() {
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              </div>
             </motion.div>
           )}
 
           {/* Recent sessions table */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="card" style={{ gridColumn: subjectData.length > 0 ? '2' : '1 / -1' }}>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className={`card ${subjectData.length === 0 ? 'md:col-span-2' : ''}`}>
             <h3 style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>Session History</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {sessions.slice(0, 8).map(s => (

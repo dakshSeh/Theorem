@@ -1,7 +1,7 @@
 import type { GeneratedQuestion, GenerationOptions, QuestionType, Difficulty } from '@/lib/types';
 
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'google/gemini-2.0-flash-001';
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL = 'llama-3.3-70b-versatile';
 
 function buildCBSEPrompt(text: string, options: GenerationOptions): string {
   const { difficulty, questionCount, typeMix } = options;
@@ -76,13 +76,11 @@ export async function generateQuestionsWithAI(
 ): Promise<GeneratedQuestion[]> {
   const prompt = buildCBSEPrompt(text, options);
 
-  const response = await fetch(OPENROUTER_API_URL, {
+  const response = await fetch(GROQ_API_URL, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      'X-Title': 'Theorem - CBSE Assessment Platform',
     },
     body: JSON.stringify({
       model: MODEL,
@@ -94,7 +92,7 @@ export async function generateQuestionsWithAI(
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`OpenRouter API error: ${response.status} — ${error}`);
+    throw new Error(`Groq API error: ${response.status} — ${error}`);
   }
 
   const data = await response.json();

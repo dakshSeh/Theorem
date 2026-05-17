@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { generateQuestionsWithAI } from '@/lib/ai/openrouter';
+import { generateQuestionsWithAI } from '@/lib/ai/groq';
 import { createClient } from '@/lib/supabase/server';
 import type { GenerationOptions } from '@/lib/types';
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Text too short — need at least 100 characters.' }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
 
     // Generate with AI

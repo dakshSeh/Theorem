@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Zap, FileText, BookMarked, BarChart2, ArrowRight, Clock, TrendingUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Upload, QuizSet, QuizSession } from '@/lib/types';
+import FollowingEyes from '@/components/ui/FollowingEyes';
 
 export default function DashboardPage() {
   const [userName, setUserName] = useState('');
@@ -35,6 +36,16 @@ export default function DashboardPage() {
     load();
   }, []);
 
+  const [mountedTime, setMountedTime] = useState<number | null>(null);
+  const [currentHour, setCurrentHour] = useState<number>(12);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setMountedTime(Date.now());
+      setCurrentHour(new Date().getHours());
+    }, 0);
+  }, []);
+
   const avgAccuracy = sessions.length > 0
     ? Math.round(sessions.reduce((s, ss) => s + (ss.accuracy || 0), 0) / sessions.length)
     : null;
@@ -42,8 +53,9 @@ export default function DashboardPage() {
   const totalQuestions = quizSets.reduce((s, q) => s + q.question_count, 0);
 
   const formatTime = (iso: string) => {
+    if (!mountedTime) return '';
     const date = new Date(iso);
-    const diff = Date.now() - date.getTime();
+    const diff = mountedTime - date.getTime();
     const hours = Math.floor(diff / 3600000);
     if (hours < 1) return 'Just now';
     if (hours < 24) return `${hours}h ago`;
@@ -56,10 +68,13 @@ export default function DashboardPage() {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h1 style={{ fontSize: '1.75rem', marginBottom: '0.35rem' }}>
-              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
-              <span style={{ color: 'var(--ember)' }}>{loading ? '…' : userName}</span>
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <h1 style={{ fontSize: '1.75rem', marginBottom: '0.35rem' }}>
+                Good {currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening'},{' '}
+                <span style={{ color: 'var(--ember)' }}>{loading ? '…' : userName}</span>
+              </h1>
+              <FollowingEyes />
+            </div>
             <p>Your forge is ready. What are we practising today?</p>
           </div>
           <Link href="/generate" className="btn btn-primary">

@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, ChevronDown, ChevronRight, Upload, Cpu, BarChart2, BookOpen, Zap, Shield, ArrowRight } from 'lucide-react';
@@ -37,7 +38,6 @@ const FAQS = [
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -48,7 +48,7 @@ function Navbar() {
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: scrolled ? 'rgba(10,10,10,0.92)' : 'transparent',
+      background: scrolled ? 'var(--surface)' : 'transparent',
       backdropFilter: scrolled ? 'blur(16px)' : 'none',
       borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
       transition: 'all 0.3s',
@@ -70,6 +70,8 @@ function Navbar() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <ThemeToggle />
+          <div style={{ width: '1px', height: '24px', background: 'var(--border)' }} className="hidden md:block" />
           <Link href="/login" className="btn btn-ghost btn-sm">Sign in</Link>
           <Link href="/signup" className="btn btn-primary btn-sm">
             Start Forging <ArrowRight size={14} />
@@ -80,82 +82,65 @@ function Navbar() {
   );
 }
 
-function HeroOrb() {
+function EditorialGraphic() {
   return (
-    <div style={{ position: 'relative', width: 440, height: 440, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {/* Outer ring */}
+    <div className="relative w-full max-w-sm aspect-square flex items-center justify-center">
+      {/* Background Soft Circle */}
+      <motion.div
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          position: 'absolute', width: '85%', height: '85%', borderRadius: '50%',
+          background: 'var(--surface-2)', border: '1px solid var(--border)',
+        }}
+      />
+      
+      {/* Middle Pattern Circle */}
       <motion.div
         animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
         style={{
-          position: 'absolute', width: 420, height: 420, borderRadius: '50%',
-          border: '1px dashed rgba(232,104,26,0.2)',
-        }}
-      />
-      {/* Middle ring */}
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-        style={{
-          position: 'absolute', width: 310, height: 310, borderRadius: '50%',
-          border: '1px solid rgba(232,104,26,0.15)',
-        }}
-      >
-        {/* Orbiting dot */}
-        <div style={{
-          position: 'absolute', top: -4, left: '50%', transform: 'translateX(-50%)',
-          width: 8, height: 8, borderRadius: '50%', background: 'var(--ember)',
-          boxShadow: '0 0 12px var(--ember)',
-        }} />
-      </motion.div>
-
-      {/* Core glow */}
-      <motion.div
-        animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute', width: 180, height: 180, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(232,104,26,0.35) 0%, rgba(232,104,26,0.05) 70%)',
+          position: 'absolute', width: '65%', height: '65%', borderRadius: '50%',
+          border: '1px dashed var(--ember-border)',
         }}
       />
 
-      {/* Center icon */}
+      {/* Center Icon */}
       <div style={{
         position: 'relative', zIndex: 2,
         width: 80, height: 80, borderRadius: '50%',
         background: 'var(--surface)',
-        border: '2px solid var(--ember-border)',
+        border: '1px solid var(--border-2)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: 'var(--glow-ember)',
+        boxShadow: 'var(--shadow)',
       }}>
-        <Flame size={36} color="var(--ember)" />
+        <BookOpen size={32} color="var(--ember)" />
       </div>
 
-      {/* Floating question cards */}
+      {/* Floating Elements */}
       {([
-        { top: '5%',   left: '-10%',  right: undefined, bottom: undefined, label: 'MCQ',        delay: 0 },
-        { top: '20%',  right: '-15%', left: undefined,  bottom: undefined, label: 'HOTS',       delay: 0.5 },
-        { bottom: '15%', left: '-8%', right: undefined, top: undefined,    label: '5 Mark',     delay: 1 },
-        { bottom: '5%',  right: '-12%', left: undefined, top: undefined,   label: 'Case Study', delay: 1.5 },
+        { top: '10%', left: '0%', label: 'Analysis', delay: 0 },
+        { top: '25%', right: '0%', label: 'Literature', delay: 1 },
+        { bottom: '20%', left: '5%', label: 'Theory', delay: 2 },
+        { bottom: '10%', right: '10%', label: 'Critique', delay: 1.5 },
       ] as Array<{ top?: string; bottom?: string; left?: string; right?: string; label: string; delay: number }>)
         .map((item, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1, y: [0, -8, 0] }}
-            transition={{ delay: item.delay, duration: 3, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: [0, -6, 0] }}
+            transition={{ delay: item.delay, duration: 4, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
             style={{
               position: 'absolute',
-              ...(item.top    ? { top:    item.top    } : {}),
+              ...(item.top ? { top: item.top } : {}),
               ...(item.bottom ? { bottom: item.bottom } : {}),
-              ...(item.left   ? { left:   item.left   } : {}),
-              ...(item.right  ? { right:  item.right  } : {}),
+              ...(item.left ? { left: item.left } : {}),
+              ...(item.right ? { right: item.right } : {}),
               background: 'var(--surface)',
               border: '1px solid var(--border)',
-              borderRadius: 8, padding: '0.4rem 0.75rem',
-              fontSize: '0.75rem', fontWeight: 600, color: 'var(--ember)',
-              whiteSpace: 'nowrap',
-              boxShadow: 'var(--shadow)',
+              borderRadius: 6, padding: '0.35rem 0.75rem',
+              fontSize: '0.75rem', fontFamily: 'var(--font-serif)', color: 'var(--text-muted)',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             {item.label}
@@ -220,8 +205,7 @@ export default function LandingPage() {
             <h1 style={{ marginBottom: '1.25rem' }}>
               Turn Any Chapter Into{' '}
               <span style={{
-                backgroundImage: 'linear-gradient(135deg, var(--ember) 0%, var(--ember-glow) 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                color: 'var(--ember)'
               }}>
                 Exam-Ready Practice
               </span>
@@ -229,7 +213,7 @@ export default function LandingPage() {
 
             <p style={{ fontSize: '1.1rem', marginBottom: '2.5rem', maxWidth: 480, color: 'var(--text-muted)', lineHeight: 1.8 }}>
               Upload your notes and let AI forge personalised CBSE-style assessments in seconds.
-              Cold PDFs enter. Sharper minds leave.
+              Transform raw text into sharp understanding.
             </p>
 
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -253,16 +237,14 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          {/* Orb */}
+          {/* Graphic */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}
+            className="flex-1 min-w-[280px] w-full flex justify-center mt-8 md:mt-0"
           >
-            <div className="scale-75 sm:scale-90 md:scale-100 origin-center">
-              <HeroOrb />
-            </div>
+            <EditorialGraphic />
           </motion.div>
         </div>
       </section>
