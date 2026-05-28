@@ -142,8 +142,9 @@ a:hover { color: var(--ember-glow); }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 .card:hover { border-color: var(--border-2); box-shadow: var(--shadow); }
 .card-ember:hover { border-color: var(--ember-border); box-shadow: var(--glow-sm); }
@@ -544,4 +545,153 @@ select:focus { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(232,104,26
 @media (max-width: 640px) {
   .section { padding: 4rem 0; }
   .card { padding: 1.25rem; }
+}
+
+/* ============================================================
+   STUDY NOTES HIGHLIGHTS (HSL curation)
+   ============================================================ */
+.note-term {
+  background-color: rgba(214, 185, 140, 0.25);
+  color: #8a622a;
+  font-weight: 600;
+  padding: 0.125rem 0.3rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+.note-definition {
+  background-color: rgba(124, 157, 150, 0.2);
+  color: #3a5953;
+  font-weight: 500;
+  padding: 0.125rem 0.3rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+.note-formula {
+  background-color: rgba(108, 155, 207, 0.2);
+  color: #36547a;
+  font-family: var(--font-mono);
+  padding: 0.125rem 0.3rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+.note-statement {
+  background-color: rgba(199, 124, 124, 0.25);
+  color: #8c3b3b;
+  font-weight: 500;
+  padding: 0.125rem 0.3rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Dark Mode Overrides */
+.dark .note-term {
+  background-color: rgba(214, 185, 140, 0.15);
+  color: #e8d2b0;
+}
+.dark .note-definition {
+  background-color: rgba(124, 157, 150, 0.15);
+  color: #a3c2bc;
+}
+.dark .note-formula {
+  background-color: rgba(108, 155, 207, 0.15);
+  color: #a1c1e6;
+}
+.dark .note-statement {
+  background-color: rgba(199, 124, 124, 0.15);
+  color: #e6a8a8;
+}
+
+/* ============================================================
+   MEMORY FORGE — Flashcard 3D Flip
+   ============================================================ */
+
+/* Ensure hardware-accelerated 3D flip works across browsers */
+.flashcard-scene {
+  perspective: 1200px;
+  width: 100%;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.flashcard-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flashcard-front {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.flashcard-back {
+  background: var(--surface);
+  border: 1px solid var(--ember-border);
+  box-shadow: var(--glow-sm);
+  transform: rotateY(180deg);
+}
+
+/* Rating buttons */
+.rating-btn {
+  flex: 1;
+  padding: 0.875rem 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-sans);
+}
+.rating-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Due date badge */
+.due-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+  border: 1px solid transparent;
+}
+.due-badge-today {
+  background: rgba(124, 157, 150, 0.15);
+  color: var(--ember);
+  border-color: var(--ember-border);
+}
+.due-badge-overdue {
+  background: rgba(199, 124, 124, 0.15);
+  color: #C77C7C;
+  border-color: rgba(199, 124, 124, 0.3);
+}
+.due-badge-future {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border-color: var(--border);
 }

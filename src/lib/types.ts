@@ -118,3 +118,43 @@ export interface GeneratedQuestion {
   explanation: string;
   marks: number;
 }
+
+export interface Note {
+  id: string;
+  user_id: string;
+  title: string;
+  subject: string;
+  class_level: string;
+  note_type: 'normal' | 'exam_ready';
+  content: string;
+  created_at: string;
+}
+
+export type CardType = 'term' | 'definition' | 'formula' | 'statement' | 'custom';
+export type ReviewRating = 0 | 1 | 2 | 3; // Again | Hard | Good | Easy
+
+export interface FlashcardDeck {
+  id: string;
+  user_id: string;
+  note_id: string | null;
+  title: string;
+  subject: string;
+  class_level: string;
+  card_count: number;
+  created_at: string;
+}
+
+export interface Flashcard {
+  id: string;
+  deck_id: string;
+  user_id: string;
+  front: string;
+  back: string;
+  card_type: CardType;
+  ease_factor: number;
+  interval_days: number;
+  repetitions: number;
+  due_date: string;
+  last_reviewed_at: string | null;
+  created_at: string;
+}

@@ -84,7 +84,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem', marginBottom: '3rem' }}>
         {[
           { icon: FileText, label: 'Uploads', value: uploads.length, sub: 'PDFs processed' },
           { icon: BookMarked, label: 'Quiz Sets', value: quizSets.length, sub: 'Generated sets' },

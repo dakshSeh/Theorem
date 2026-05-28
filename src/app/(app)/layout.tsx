@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, LayoutDashboard, Zap, BarChart2,
   BookMarked, LogOut, User, Menu, X, ChevronRight,
+  BookOpen, Layers,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -13,6 +14,8 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 const NAV_ITEMS = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/generate', icon: Zap, label: 'Generate' },
+  { href: '/notes', icon: BookOpen, label: 'Study Notes' },
+  { href: '/flashcards', icon: Layers, label: 'Memory Forge' },
   { href: '/review', icon: BarChart2, label: 'Review' },
   { href: '/saved', icon: BookMarked, label: 'Saved Sets' },
 ];

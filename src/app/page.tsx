@@ -5,14 +5,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, ChevronDown, ChevronRight, Upload, Cpu, BarChart2, BookOpen, Zap, Shield, ArrowRight } from 'lucide-react';
 
-const SUBJECTS = ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'Economics', 'History', 'Geography', 'Political Science', 'English', 'Business Studies'];
-
 const FEATURES = [
   { icon: Upload, title: 'Smart PDF Upload', desc: 'Drag & drop PDFs. We extract text, identify subject and chapter, and find key concepts automatically.' },
   { icon: Cpu, title: 'AI Question Engine', desc: 'Generates authentic CBSE-style MCQs, short answers, HOTS, case-based, and assertion-reason questions.' },
   { icon: Zap, title: 'Three Quiz Modes', desc: 'Practice with instant feedback, simulate exams with a timer, or let adaptive mode adjust to your level.' },
   { icon: BarChart2, title: 'Deep Analytics', desc: 'Track accuracy, weak concepts, and time per question. Get AI-powered insights on what to revise.' },
-  { icon: BookOpen, title: 'Save & Organise', desc: 'Folder your quiz sets by subject or exam. Rename, duplicate, and export as printable PDF worksheets.' },
+  { icon: BookOpen, title: 'Study Notes & Flashcards', desc: 'Generate comprehensive notes and spaced-repetition flashcards from any material — instantly.' },
   { icon: Shield, title: 'Curriculum Aligned', desc: 'Every question is generated with CBSE syllabus relevance enforced — no off-syllabus hallucinations.' },
 ];
 
@@ -22,16 +20,10 @@ const HOW_IT_WORKS = [
   { step: '03', title: 'Questions Generated', desc: 'CBSE-style questions emerge — organised by difficulty and type, ready to practice.' },
 ];
 
-const TESTIMONIALS = [
-  { name: 'Ananya S.', role: 'Class XII, DPS Delhi', text: 'I uploaded my Chemistry notes and got 30 board-style questions in 20 seconds. This is what I needed before prelims.' },
-  { name: 'Rohan M.', role: 'Class XI, KV Bangalore', text: 'The HOTS questions it generates are actually hard. Way better than anything I found on Google.' },
-  { name: 'Priya K.', role: 'Physics Teacher, CBSE School', text: 'I use Theorem to build worksheet question banks. Saves me hours every week. The teacher export is excellent.' },
-];
-
 const FAQS = [
   { q: 'What file types can I upload?', a: 'Currently PDF files are supported. The system extracts text from standard PDFs — scanned or image-only PDFs will have limited extraction.' },
   { q: 'How many questions can I generate at once?', a: 'You can generate between 5 and 50 questions per session. Use the slider in the generator to set your count.' },
-  { q: 'Are the questions actually CBSE-aligned?', a: 'Yes. The AI is prompted specifically to follow CBSE board wording conventions, difficulty calibration, and question formats. It refuses to introduce off-syllabus concepts.' },
+  { q: 'Are the questions actually CBSE-aligned?', a: 'Yes. The AI is prompted specifically to follow CBSE board wording conventions, difficulty calibration, and question formats.' },
   { q: 'Can I export the questions as a PDF?', a: 'Absolutely. After generation, hit Export to download a formatted PDF worksheet with or without an answer key.' },
   { q: 'Is my uploaded content stored securely?', a: 'All uploads are stored in your private Supabase bucket, protected by row-level security. Only you can access your files.' },
 ];
@@ -54,7 +46,6 @@ function Navbar() {
       transition: 'all 0.3s',
     }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '64px' }}>
-        {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
           <div style={{ width: 28, height: 28, background: 'var(--ember)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Flame size={16} color="#fff" />
@@ -62,7 +53,6 @@ function Navbar() {
           <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>Theorem</span>
         </Link>
 
-        {/* Desktop nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="hidden md:flex">
           <a href="#features" className="btn btn-ghost btn-sm">Features</a>
           <a href="#how-it-works" className="btn btn-ghost btn-sm">How it works</a>
@@ -85,7 +75,6 @@ function Navbar() {
 function EditorialGraphic() {
   return (
     <div className="relative w-full max-w-sm aspect-square flex items-center justify-center">
-      {/* Background Soft Circle */}
       <motion.div
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
@@ -94,8 +83,6 @@ function EditorialGraphic() {
           background: 'var(--surface-2)', border: '1px solid var(--border)',
         }}
       />
-      
-      {/* Middle Pattern Circle */}
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
@@ -104,8 +91,6 @@ function EditorialGraphic() {
           border: '1px dashed var(--ember-border)',
         }}
       />
-
-      {/* Center Icon */}
       <div style={{
         position: 'relative', zIndex: 2,
         width: 80, height: 80, borderRadius: '50%',
@@ -117,12 +102,11 @@ function EditorialGraphic() {
         <BookOpen size={32} color="var(--ember)" />
       </div>
 
-      {/* Floating Elements */}
       {([
         { top: '10%', left: '0%', label: 'Analysis', delay: 0 },
-        { top: '25%', right: '0%', label: 'Literature', delay: 1 },
-        { bottom: '20%', left: '5%', label: 'Theory', delay: 2 },
-        { bottom: '10%', right: '10%', label: 'Critique', delay: 1.5 },
+        { top: '25%', right: '0%', label: 'Practice', delay: 1 },
+        { bottom: '20%', left: '5%', label: 'Review', delay: 2 },
+        { bottom: '10%', right: '10%', label: 'Mastery', delay: 1.5 },
       ] as Array<{ top?: string; bottom?: string; left?: string; right?: string; label: string; delay: number }>)
         .map((item, i) => (
           <motion.div
@@ -186,12 +170,10 @@ export default function LandingPage() {
         position: 'relative', overflow: 'hidden',
         paddingTop: '80px',
       }} className="grid-bg">
-        {/* Background glows */}
         <div className="hero-glow" style={{ top: '-10%', left: '-5%' }} />
         <div className="hero-glow" style={{ bottom: '-20%', right: '-10%', opacity: 0.5 }} />
 
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3rem', flexWrap: 'wrap', zIndex: 1 }}>
-          {/* Text */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -204,9 +186,7 @@ export default function LandingPage() {
 
             <h1 style={{ marginBottom: '1.25rem' }}>
               Turn Any Chapter Into{' '}
-              <span style={{
-                color: 'var(--ember)'
-              }}>
+              <span style={{ color: 'var(--ember)' }}>
                 Exam-Ready Practice
               </span>
             </h1>
@@ -222,7 +202,6 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Stats */}
             <div style={{ display: 'flex', gap: '2.5rem', marginTop: '2.5rem' }}>
               {[
                 { value: '9+', label: 'CBSE Subjects' },
@@ -237,7 +216,6 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          {/* Graphic */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -252,7 +230,7 @@ export default function LandingPage() {
       {/* ── HOW IT WORKS ── */}
       <section id="how-it-works" className="section">
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <div className="badge badge-ember" style={{ marginBottom: '1rem' }}>Process</div>
             <h2>Three steps to mastery</h2>
             <p style={{ marginTop: '0.75rem', maxWidth: 480, margin: '0.75rem auto 0' }}>
@@ -300,7 +278,7 @@ export default function LandingPage() {
       {/* ── FEATURES ── */}
       <section id="features" className="section" style={{ background: 'var(--surface)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <div className="badge badge-ember" style={{ marginBottom: '1rem' }}>Features</div>
             <h2>Everything you need to practice smarter</h2>
           </div>
@@ -326,49 +304,6 @@ export default function LandingPage() {
                 </div>
                 <h3 style={{ marginBottom: '0.5rem' }}>{f.title}</h3>
                 <p style={{ fontSize: '0.875rem', lineHeight: 1.6 }}>{f.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SUBJECTS ── */}
-      <section className="section">
-        <div className="container" style={{ textAlign: 'center' }}>
-          <div className="badge badge-ember" style={{ marginBottom: '1rem' }}>Subjects</div>
-          <h2 style={{ marginBottom: '0.75rem' }}>Covers the full CBSE curriculum</h2>
-          <p style={{ marginBottom: '2.5rem' }}>From Sciences to Humanities — all board subjects supported.</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-            {SUBJECTS.map((s) => (
-              <span key={s} className="tag" style={{ fontSize: '0.875rem', padding: '0.4rem 1rem' }}>{s}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className="section" style={{ background: 'var(--surface)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <div className="badge badge-ember" style={{ marginBottom: '1rem' }}>Testimonials</div>
-            <h2>Students & teachers who forged ahead</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="card"
-              >
-                <div style={{ fontSize: '1.5rem', color: 'var(--ember)', marginBottom: '0.75rem', lineHeight: 1 }}>&ldquo;</div>
-                <p style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text)', marginBottom: '1.25rem' }}>{t.text}</p>
-                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{t.name}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.role}</div>
-                </div>
               </motion.div>
             ))}
           </div>

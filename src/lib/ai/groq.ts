@@ -69,12 +69,83 @@ ${text.slice(0, 12000)}
 Generate exactly ${questionCount} questions now:`;
 }
 
+function buildCBSEPromptByTopic(
+  topic: string,
+  subject: string,
+  classLevel: string,
+  options: GenerationOptions
+): string {
+  const { difficulty, questionCount, typeMix } = options;
+
+  const typeBreakdown = Object.entries(typeMix)
+    .filter(([, pct]) => pct && pct > 0)
+    .map(([type, pct]) => `  - ${type}: ${pct}%`)
+    .join('\n');
+
+  const difficultyInstruction = difficulty === 'mixed'
+    ? 'Mix difficulty levels: approximately 30% easy, 40% moderate, 30% hard.'
+    : `All questions should be ${difficulty} difficulty.`;
+
+  return `You are an expert CBSE exam question paper setter with 20+ years of experience.
+Your task is to generate exactly ${questionCount} high-quality, syllabus-relevant, exam-ready questions for the following target:
+- Subject: ${subject}
+- Class/Grade: ${classLevel}
+- Topic/Chapter: ${topic}
+
+CRITICAL RULES:
+1. Questions must be highly relevant, syllabus-accurate, and aligned with standard curriculum models for ${classLevel}.
+2. Use authentic board exam wording and style.
+3. ${difficultyInstruction}
+4. Each MCQ must have exactly 4 options (A, B, C, D) with exactly one correct answer.
+5. Explanations must be concise and educational (2-3 sentences).
+
+QUESTION TYPE DISTRIBUTION (approximate percentages):
+${typeBreakdown || '  - Mix of MCQ and short answer questions'}
+
+QUESTION TYPE DEFINITIONS:
+- mcq: Multiple choice with 4 options, 1 mark
+- assertion_reason: Assertion-Reason format (A: ..., R: ...), 1 mark
+- fill_blank: Fill in the blank, 1 mark
+- short_2mark: Short answer, 2 marks (3-4 sentences expected)
+- short_3mark: Short answer, 3 marks (5-6 sentences expected)
+- long_5mark: Long answer/essay, 5 marks (detailed explanation)
+- case_based: Passage-based comprehension question, 4 marks
+- hots: Higher order thinking, application/analysis, 3 marks
+- match_following: Match column A with column B, 1 mark
+
+OUTPUT FORMAT: Respond ONLY with a valid JSON array. No markdown, no explanation outside JSON.
+
+[
+  {
+    "question_text": "...",
+    "question_type": "mcq",
+    "difficulty": "easy",
+    "options": [
+      {"label": "A", "text": "...", "is_correct": false},
+      {"label": "B", "text": "...", "is_correct": true},
+      {"label": "C", "text": "...", "is_correct": false},
+      {"label": "D", "text": "...", "is_correct": false}
+    ],
+    "answer": "B",
+    "explanation": "...",
+    "marks": 1
+  }
+]
+
+For non-MCQ questions, omit the "options" field and set "answer" to the model answer text.
+
+Generate exactly ${questionCount} questions now:`;
+}
+
 export async function generateQuestionsWithAI(
   text: string,
   options: GenerationOptions,
-  apiKey: string
+  apiKey: string,
+  topicParams?: { topic: string; subject: string; classLevel: string }
 ): Promise<GeneratedQuestion[]> {
-  const prompt = buildCBSEPrompt(text, options);
+  const prompt = topicParams
+    ? buildCBSEPromptByTopic(topicParams.topic, topicParams.subject, topicParams.classLevel, options)
+    : buildCBSEPrompt(text, options);
 
   const response = await fetch(GROQ_API_URL, {
     method: 'POST',
@@ -115,4 +186,57 @@ export async function generateQuestionsWithAI(
     explanation: q.explanation || '',
     marks: q.marks || 1,
   }));
+}
+
+export async function generateNotesWithAI(
+  topic: string,
+  subject: string,
+  classLevel: string,
+  noteType: 'normal' | 'exam_ready',
+  apiKey: string
+): Promise<string> {
+  const noteTypePrompt = noteType === 'exam_ready'
+    ? `Create an EXAM-READY revision sheet. It must be high-density, bulleted, straight-to-the-point, and optimized for maximum speed and revision performance. Avoid unnecessary fluff, but ensure every single important fact, date, formula, and definition is present. Minimum length: 1000 words.`
+    : `Create a DETAILED, extensive, and highly comprehensive study note. It must cover all concepts, explanations, background theory, historical context (if applicable), and step-by-step logic exhaustively. Write in a clear, academic, and highly readable editorial tone. You MUST include deep conceptual breakdowns, real-world examples, and edge cases. MINIMUM LENGTH: 1500 to 2000 words. Do not be brief. Explain everything deeply.`;
+
+  const prompt = `You are a premium, highly academic educational content creator and curriculum expert.
+Your task is to write an extraordinarily comprehensive, top-tier study note on the following target:
+- Subject: ${subject}
+- Class/Grade: ${classLevel}
+- Topic: ${topic}
+
+NOTE STYLE REQUIREMENT:
+${noteTypePrompt}
+
+FORMATTING:
+- Use clear markdown structure (headers '#', '##', '###', bullet points, numbered lists, bold text).
+- Structure the content with an introduction, core concepts, detailed breakdowns, examples, and a summary.
+- Return ONLY the clean markdown string. Do not wrap the response in markdown JSON or anything else. Just start directly with the title header '#'.
+
+Write the extensive notes now:`;
+
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 6000,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Groq API error: ${response.status} — ${error}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error('No content returned from AI');
+
+  return content;
 }

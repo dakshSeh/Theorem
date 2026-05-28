@@ -29,14 +29,31 @@ export default function GeneratePage() {
     setPageState('generate');
   }, []);
 
-  const handleGenerate = useCallback(async (options: GenerationOptions, title: string, subject: string, chapter: string) => {
+  const handleGenerate = useCallback(async (
+    options: GenerationOptions,
+    title: string,
+    subject: string,
+    chapter: string,
+    mode: 'pdf' | 'topic',
+    classLevel: string,
+    topic: string
+  ) => {
     setGenerating(true);
     setError('');
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: extractedText, options, title, subject, chapter }),
+        body: JSON.stringify({
+          mode,
+          text: mode === 'pdf' ? extractedText : undefined,
+          topic: mode === 'topic' ? topic : undefined,
+          classLevel: mode === 'topic' ? classLevel : undefined,
+          options,
+          title,
+          subject,
+          chapter: mode === 'pdf' ? chapter : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Generation failed');
@@ -218,7 +235,7 @@ export default function GeneratePage() {
             <GeneratorControls
               onGenerate={handleGenerate}
               loading={generating}
-              disabled={!extractedText}
+              pdfUploaded={!!extractedText}
             />
           </div>
         </div>
