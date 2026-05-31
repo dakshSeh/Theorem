@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     description: "AI-powered CBSE assessment platform. Upload notes, get exam-ready questions instantly.",
     type: "website",
   },
+  verification: {
+    google: "G5j582XOUR51v3SbzcpgQj-wTgt31WFe7YVXmgbo3Tg",
+  },
 };
 
 export default function RootLayout({
