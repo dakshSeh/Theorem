@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import MagneticButton from '@/components/ui/MagneticButton';
 import { Flame, ChevronDown, ChevronRight, Upload, Cpu, BarChart2, BookOpen, Zap, Shield, ArrowRight } from 'lucide-react';
 
 const FEATURES = [
@@ -63,9 +64,9 @@ function Navbar() {
           <ThemeToggle />
           <div style={{ width: '1px', height: '24px', background: 'var(--border)' }} className="hidden md:block" />
           <Link href="/login" className="btn btn-ghost btn-sm">Sign in</Link>
-          <Link href="/signup" className="btn btn-primary btn-sm">
+          <MagneticButton asLink href="/signup" className="btn btn-primary btn-sm">
             Start Forging <ArrowRight size={14} />
-          </Link>
+          </MagneticButton>
         </div>
       </div>
     </nav>
@@ -160,6 +161,10 @@ function AccordionItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function LandingPage() {
+  const { scrollYProgress } = useScroll();
+  const yText = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const yGraphic = useTransform(scrollYProgress, [0, 1], [0, -100]);
+
   return (
     <>
       <Navbar />
@@ -170,21 +175,37 @@ export default function LandingPage() {
         position: 'relative', overflow: 'hidden',
         paddingTop: '80px',
       }} className="grid-bg">
-        <div className="hero-glow" style={{ top: '-10%', left: '-5%' }} />
-        <div className="hero-glow" style={{ bottom: '-20%', right: '-10%', opacity: 0.5 }} />
+        {/* Mesh Gradients */}
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute', top: '-10%', left: '-5%', width: '50vw', height: '50vw',
+            background: 'radial-gradient(circle, var(--ember-border) 0%, transparent 60%)',
+            filter: 'blur(80px)', zIndex: 0, pointerEvents: 'none', transform: 'translateZ(0)'
+          }}
+        />
+        <motion.div
+          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          style={{
+            position: 'absolute', bottom: '-20%', right: '-10%', width: '60vw', height: '60vw',
+            background: 'radial-gradient(circle, var(--highlight) 0%, transparent 60%)',
+            filter: 'blur(100px)', zIndex: 0, pointerEvents: 'none', transform: 'translateZ(0)'
+          }}
+        />
 
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3rem', flexWrap: 'wrap', zIndex: 1 }}>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            style={{ maxWidth: 560, flex: '1 1 300px' }}
+            style={{ maxWidth: 560, flex: '1 1 300px', y: yText }}
           >
             <div className="badge badge-ember" style={{ marginBottom: '1.5rem' }}>
               <Flame size={10} /> CBSE Assessment Platform
             </div>
 
-            <h1 style={{ marginBottom: '1.25rem' }}>
+            <h1 className="hero-title">
               Turn Any Chapter Into{' '}
               <span style={{ color: 'var(--ember)' }}>
                 Exam-Ready Practice
@@ -197,9 +218,9 @@ export default function LandingPage() {
             </p>
 
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <Link href="/signup" className="btn btn-primary btn-lg">
+              <MagneticButton asLink href="/signup" className="btn btn-primary btn-lg">
                 Start Forging <ArrowRight size={16} />
-              </Link>
+              </MagneticButton>
             </div>
 
             <div style={{ display: 'flex', gap: '2.5rem', marginTop: '2.5rem' }}>
@@ -220,6 +241,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
+            style={{ y: yGraphic }}
             className="flex-1 min-w-[280px] w-full flex justify-center mt-8 md:mt-0"
           >
             <EditorialGraphic />
@@ -340,9 +362,9 @@ export default function LandingPage() {
             <p style={{ marginBottom: '2rem', maxWidth: 440, margin: '0 auto 2rem' }}>
               Join students and teachers who are already generating smarter practice with Theorem.
             </p>
-            <Link href="/signup" className="btn btn-primary btn-lg">
+            <MagneticButton asLink href="/signup" className="btn btn-primary btn-lg">
               Start Forging — It&apos;s Free <ArrowRight size={16} />
-            </Link>
+            </MagneticButton>
           </motion.div>
         </div>
       </section>

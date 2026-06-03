@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, LayoutDashboard, Zap, BarChart2,
@@ -12,12 +12,12 @@ import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const NAV_ITEMS = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/generate', icon: Zap, label: 'Generate' },
-  { href: '/notes', icon: BookOpen, label: 'Study Notes' },
-  { href: '/flashcards', icon: Layers, label: 'Memory Forge' },
-  { href: '/review', icon: BarChart2, label: 'Review' },
-  { href: '/saved', icon: BookMarked, label: 'Saved Sets' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', description: 'Overview & Stats' },
+  { href: '/generate', icon: Zap, label: 'Generate', description: 'Create Questions' },
+  { href: '/notes', icon: BookOpen, label: 'Study Notes', description: 'AI-Generated Notes' },
+  { href: '/flashcards', icon: Layers, label: 'Memory Forge', description: 'Spaced Repetition' },
+  { href: '/review', icon: BarChart2, label: 'Review', description: 'Session History' },
+  { href: '/saved', icon: BookMarked, label: 'Saved Sets', description: 'Your Question Banks' },
 ];
 
 function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: boolean, setIsOpen: (val: boolean) => void }) {
@@ -43,7 +43,8 @@ function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: bo
             onClick={() => setIsOpen(false)}
             style={{
               position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(0,0,0,0.5)', zIndex: 40,
+              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+              zIndex: 40,
             }}
             className="md:hidden"
           />
@@ -64,27 +65,66 @@ function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: bo
         </button>
       </div>
 
+      {/* Section Label */}
+      <div style={{ padding: '1rem 1.25rem 0.35rem', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-dim)' }}>
+        Navigation
+      </div>
+
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <nav style={{ flex: 1, padding: '0.25rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setIsOpen(false)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.7rem',
-                padding: '0.6rem 0.875rem', borderRadius: 'var(--radius)',
+                padding: '0.65rem 0.875rem', borderRadius: 'var(--radius)',
                 textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500,
-                transition: 'all 0.2s',
+                transition: 'all 0.2s ease',
                 background: active ? 'var(--ember-subtle)' : 'transparent',
                 color: active ? 'var(--ember)' : 'var(--text-muted)',
                 border: active ? '1px solid var(--ember-border)' : '1px solid transparent',
+                position: 'relative',
+              }}
+              onMouseEnter={e => {
+                if (!active) {
+                  (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-2)';
+                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (!active) {
+                  (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-muted)';
+                }
               }}
             >
-              <item.icon size={16} />
-              {item.label}
-              {active && <ChevronRight size={14} style={{ marginLeft: 'auto' }} />}
+              <div style={{
+                width: 32, height: 32, borderRadius: 'var(--radius-sm)',
+                background: active ? 'var(--ember-border)' : 'var(--surface-2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, transition: 'background 0.2s',
+              }}>
+                <item.icon size={15} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: active ? 600 : 500, lineHeight: 1.2 }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', lineHeight: 1.3, marginTop: '0.1rem' }}>
+                  {item.description}
+                </div>
+              </div>
+              {active && (
+                <motion.div
+                  layoutId="sidebar-active"
+                  style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 3, borderRadius: 100, background: 'var(--ember)' }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
             </Link>
           );
         })}
@@ -128,34 +168,63 @@ function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: bo
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userName, setUserName] = useState('');
   const pathname = usePathname();
 
-  // Close sidebar on route change during render
+  // Close sidebar on route change
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
     setSidebarOpen(false);
   }
 
+  // Fetch the user's name once for the sidebar
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+      setUserName(data?.full_name || user.email?.split('@')[0] || 'Student');
+    }
+    loadUser();
+  }, []);
+
+  // Get the current page title for breadcrumb
+  const currentPage = NAV_ITEMS.find(
+    item => pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
+  );
+
   return (
     <div className="app-layout">
-      <Sidebar userName="" isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <Sidebar userName={userName} isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <main className="main-content">
         {/* Mobile top nav */}
         <div className="md:hidden" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)',
-          background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 30
+          padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)',
+          background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 30,
+          backdropFilter: 'blur(12px)',
         }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            <div style={{ width: 24, height: 24, background: 'var(--ember)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Flame size={14} color="#fff" />
-            </div>
-            <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text)' }}>Theorem</span>
-          </Link>
-          <button className="btn btn-ghost btn-icon" onClick={() => setSidebarOpen(true)}>
-            <Menu size={20} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+              <div style={{ width: 24, height: 24, background: 'var(--ember)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Flame size={14} color="#fff" />
+              </div>
+            </Link>
+            {currentPage && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                <ChevronRight size={12} />
+                <span style={{ fontWeight: 600, color: 'var(--text)' }}>{currentPage.label}</span>
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ThemeToggle />
+            <button className="btn btn-ghost btn-icon" onClick={() => setSidebarOpen(true)}>
+              <Menu size={20} />
+            </button>
+          </div>
         </div>
         
         {children}

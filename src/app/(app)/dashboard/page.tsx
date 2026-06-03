@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Zap, FileText, BookMarked, BarChart2, ArrowRight, Clock, TrendingUp } from 'lucide-react';
+import { Zap, FileText, BookMarked, ArrowRight, TrendingUp } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { createClient } from '@/lib/supabase/client';
 import type { Upload, QuizSet, QuizSession } from '@/lib/types';
 import FollowingEyes from '@/components/ui/FollowingEyes';
@@ -61,6 +62,11 @@ export default function DashboardPage() {
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
   };
+
+  const chartData = [...sessions].reverse().map((s, i) => ({
+    name: `Session ${i + 1}`,
+    accuracy: s.accuracy || 0,
+  }));
 
   return (
     <div style={{ padding: '2rem', maxWidth: 1100 }}>
@@ -174,26 +180,51 @@ export default function DashboardPage() {
           )}
         </motion.div>
 
-        {/* Recent Sessions */}
+        {/* Accuracy Over Time Chart */}
         {sessions.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="card" style={{ gridColumn: '1 / -1' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.9rem' }}>Recent Sessions</h3>
+              <h3 style={{ fontSize: '0.9rem' }}>Accuracy Over Time</h3>
               <Link href="/review" style={{ fontSize: '0.78rem', color: 'var(--ember)' }}>Full review <ArrowRight size={12} style={{ display: 'inline' }} /></Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-              {sessions.slice(0, 6).map(s => (
-                <div key={s.id} className="card" style={{ padding: '0.875rem', background: 'var(--surface-2)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                    <BarChart2 size={13} color="var(--ember)" />
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize', color: 'var(--text-muted)' }}>{s.mode} mode</span>
-                  </div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--ember)' }}>{s.accuracy ? `${Math.round(s.accuracy)}%` : '—'}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Clock size={10} /> {formatTime(s.completed_at || s.started_at)}
-                  </div>
-                </div>
-              ))}
+            
+            <div style={{ width: '100%', height: 320, marginTop: '1.5rem' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorAccuracy" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--ember)" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="var(--ember)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: 'var(--text-dim)' }} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: 'var(--text-dim)' }} 
+                    domain={[0, 100]} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ background: 'var(--surface)', borderColor: 'var(--border)', borderRadius: 'var(--radius)', fontSize: '0.85rem' }}
+                    itemStyle={{ color: 'var(--ember)', fontWeight: 600 }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="accuracy" 
+                    stroke="var(--ember)" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorAccuracy)" 
+                    activeDot={{ r: 6, fill: 'var(--ember)', stroke: 'var(--bg)', strokeWidth: 3 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </motion.div>
         )}

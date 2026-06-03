@@ -8,6 +8,7 @@ import {
   CheckCircle, XCircle, Clock, AlertCircle, ChevronRight,
   Zap, Award
 } from 'lucide-react';
+import { useSound } from '@/lib/hooks/useSound';
 import Link from 'next/link';
 import type { Flashcard, FlashcardDeck } from '@/lib/types';
 
@@ -26,6 +27,7 @@ export default function DeckStudyPage({ params }: { params: Promise<{ id: string
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get('tab') as Tab) || 'study';
+  const { playPop, playThunk } = useSound();
 
   const [tab, setTab] = useState<Tab>(initialTab);
   const [deck, setDeck] = useState<FlashcardDeck | null>(null);
@@ -277,7 +279,10 @@ export default function DeckStudyPage({ params }: { params: Promise<{ id: string
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   >
                     <div
-                      onClick={() => setFlipped(f => !f)}
+                      onClick={() => {
+                        setFlipped(f => !f);
+                        if (!flipped) playThunk(); // Only play thunk when flipping to the back
+                      }}
                       style={{
                         position: 'relative',
                         minHeight: 280,
@@ -337,7 +342,10 @@ export default function DeckStudyPage({ params }: { params: Promise<{ id: string
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.65rem' }}>
                       {(Object.entries(RATING_LABELS) as [string, typeof RATING_LABELS[0]][]).map(([r, meta]) => (
                         <button key={r}
-                          onClick={() => handleRate(Number(r) as ReviewRating)}
+                          onClick={() => {
+                            playPop();
+                            handleRate(Number(r) as ReviewRating);
+                          }}
                           disabled={isRating}
                           style={{
                             padding: '0.875rem 0.5rem', borderRadius: 'var(--radius)', border: `1px solid ${meta.color}30`,

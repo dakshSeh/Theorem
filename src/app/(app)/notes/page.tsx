@@ -7,6 +7,7 @@ import {
   BookOpen, Search, Plus, Trash2, Download, Zap, 
   FileText, ArrowLeft, CheckCircle, AlertCircle, X, Layers
 } from 'lucide-react';
+import { SkeletonList } from '@/components/ui/Skeleton';
 import type { Note } from '@/lib/types';
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'Economics', 'History', 'Geography', 'Political Science', 'English', 'Business Studies', 'Other'];
@@ -486,9 +487,7 @@ export default function NotesPage() {
             {/* Note items scroll area */}
             <div style={{ maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {loading ? (
-                [1,2,3].map(i => (
-                  <div key={i} className="shimmer" style={{ height: 75, borderRadius: 'var(--radius)' }} />
-                ))
+                <SkeletonList />
               ) : filteredNotes.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
                   <BookOpen size={24} color="var(--text-dim)" style={{ margin: '0 auto 0.5rem' }} />

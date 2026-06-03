@@ -113,6 +113,16 @@ h2 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
 h3 { font-size: 1.25rem; }
 h4 { font-size: 1.1rem; }
 
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+
 p { color: var(--text-muted); line-height: 1.7; }
 
 a { color: var(--ember); text-decoration: none; transition: color 0.2s; }
@@ -548,57 +558,15 @@ select:focus { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(232,104,26
 }
 
 /* ============================================================
-   STUDY NOTES HIGHLIGHTS (HSL curation)
+   ACCESSIBILITY — Reduced motion
    ============================================================ */
-.note-term {
-  background-color: rgba(214, 185, 140, 0.25);
-  color: #8a622a;
-  font-weight: 600;
-  padding: 0.125rem 0.3rem;
-  border-radius: 4px;
-  display: inline-block;
-}
-.note-definition {
-  background-color: rgba(124, 157, 150, 0.2);
-  color: #3a5953;
-  font-weight: 500;
-  padding: 0.125rem 0.3rem;
-  border-radius: 4px;
-  display: inline-block;
-}
-.note-formula {
-  background-color: rgba(108, 155, 207, 0.2);
-  color: #36547a;
-  font-family: var(--font-mono);
-  padding: 0.125rem 0.3rem;
-  border-radius: 4px;
-  display: inline-block;
-}
-.note-statement {
-  background-color: rgba(199, 124, 124, 0.25);
-  color: #8c3b3b;
-  font-weight: 500;
-  padding: 0.125rem 0.3rem;
-  border-radius: 4px;
-  display: inline-block;
-}
-
-/* Dark Mode Overrides */
-.dark .note-term {
-  background-color: rgba(214, 185, 140, 0.15);
-  color: #e8d2b0;
-}
-.dark .note-definition {
-  background-color: rgba(124, 157, 150, 0.15);
-  color: #a3c2bc;
-}
-.dark .note-formula {
-  background-color: rgba(108, 155, 207, 0.15);
-  color: #a1c1e6;
-}
-.dark .note-statement {
-  background-color: rgba(199, 124, 124, 0.15);
-  color: #e6a8a8;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ============================================================

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookMarked, Folder, Plus, Play, Trash2, Search, FolderPlus, X } from 'lucide-react';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { QuizSet, Folder as FolderType } from '@/lib/types';
@@ -102,7 +103,7 @@ export default function SavedPage() {
           </div>
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-              {[1,2,3,4].map(i => <div key={i} className="shimmer" style={{ height: 140, borderRadius: 'var(--radius-lg)' }} />)}
+              {[1,2,3,4].map(i => <SkeletonCard key={i} />)}
             </div>
           ) : filtered.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>

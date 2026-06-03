@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Layers, Plus, Trash2, BookOpen, ChevronRight, Zap, Calendar, AlertCircle, X } from 'lucide-react';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 import type { FlashcardDeck } from '@/lib/types';
 
 export default function FlashcardsPage() {
@@ -145,7 +146,7 @@ export default function FlashcardsPage() {
       {loading ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
           {[1,2,3].map(i => (
-            <div key={i} className="card shimmer" style={{ height: 160 }} />
+            <SkeletonCard key={i} />
           ))}
         </div>
       ) : decks.length === 0 ? (
