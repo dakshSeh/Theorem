@@ -18,6 +18,7 @@
   --text:         #2B2B2B;
   --text-muted:   #5C5C5C;
   --text-dim:     #8F8F8F;
+  --surface-glass: rgba(255, 255, 255, 0.55);
   --ember:        #7C9D96; /* Accent Muted Green */
   --ember-dim:    #62807A;
   --ember-glow:   #94B8B0;
@@ -60,6 +61,7 @@
   --text:         #F8F5F0;
   --text-muted:   #B3B0AA;
   --text-dim:     #7A7874;
+  --surface-glass: rgba(38, 38, 38, 0.55);
   --ember:        #7C9D96; /* Accent Muted Green */
   --ember-dim:    #62807A;
   --ember-glow:   #94B8B0;
@@ -115,12 +117,12 @@ h4 { font-size: 1.1rem; }
 
 .hero-title {
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 7vw, 6rem);
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  line-height: 1;
+  letter-spacing: -0.04em;
   color: var(--text);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 p { color: var(--text-muted); line-height: 1.7; }
@@ -145,7 +147,17 @@ a:hover { color: var(--ember-glow); }
   padding: 0 1.5rem;
 }
 
-.section { padding: 6rem 0; }
+.section { padding: 5rem 0; }
+@media (min-width: 1024px) {
+  .section { padding: 8rem 0; }
+}
+
+.editorial-text {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 600px;
+}
 
 /* Cards */
 .card {
@@ -179,7 +191,7 @@ a:hover { color: var(--ember-glow); }
   background: var(--ember);
   color: #fff;
   padding: 0.65rem 1.5rem;
-  box-shadow: 0 2px 8px rgba(232,104,26,0.3);
+  box-shadow: 0 4px 14px rgba(124, 157, 150, 0.4);
 }
 .btn-primary:hover {
   background: var(--ember-glow);
@@ -332,6 +344,19 @@ a:hover { color: var(--ember-glow); }
   animation: shimmer 1.5s infinite;
 }
 
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 40s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
 /* ============================================================
    SIDEBAR LAYOUT
    ============================================================ */
@@ -453,9 +478,35 @@ a:hover { color: var(--ember-glow); }
 
 .grid-bg {
   background-image:
-    linear-gradient(rgba(var(--grid-color), 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--grid-color), 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(var(--grid-color), 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--grid-color), 0.04) 1px, transparent 1px);
   background-size: 32px 32px;
+  position: relative;
+}
+.grid-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0%, var(--bg) 80%);
+  pointer-events: none;
+}
+.noise-texture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.25;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+.diagonal-bg {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(var(--grid-color), 0.02) 0,
+    rgba(var(--grid-color), 0.02) 1px,
+    transparent 1px,
+    transparent 10px
+  );
 }
 
 /* ============================================================
@@ -552,8 +603,11 @@ select:focus { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(232,104,26
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .section { padding: 4rem 0; }
+}
+@media (max-width: 640px) {
+  .section { padding: 3rem 0; }
   .card { padding: 1.25rem; }
 }
 

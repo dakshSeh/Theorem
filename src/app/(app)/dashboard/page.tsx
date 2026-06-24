@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Zap, FileText, BookMarked, ArrowRight, TrendingUp } from 'lucide-react';
@@ -68,6 +68,28 @@ export default function DashboardPage() {
     accuracy: s.accuracy || 0,
   }));
 
+  // Pre-compute heatmap cell backgrounds deterministically to avoid
+  // Math.random()-induced flickering on every re-render.
+  const heatmapCells = useMemo(() => {
+    return Array.from({ length: 90 }).map((_, i) => {
+      // Knuth multiplicative hash → deterministic 0-99 value per cell
+      const hash = ((i + 1) * 2654435761) >>> 0;
+      const rand = (hash % 100) / 100;
+
+      // Last 4 cells are always "hot" when there are sessions
+      if (sessions.length > 0 && i > 85) return 'var(--ember)';
+
+      const isActive = sessions.length > 0 && rand > 0.7;
+      if (!isActive) return 'var(--surface-3)';
+
+      // Secondary hash for intensity
+      const intensity = ((hash >>> 8) % 100) / 100;
+      if (intensity > 0.8) return 'var(--ember)';
+      if (intensity > 0.4) return 'var(--ember-dim)';
+      return 'var(--ember-subtle)';
+    });
+  }, [sessions.length]);
+
   return (
     <div style={{ padding: '2rem', maxWidth: 1100 }}>
       {/* Header */}
@@ -117,6 +139,65 @@ export default function DashboardPage() {
           </motion.div>
         ))}
       </div>
+
+      {/* AI Recommendation Banner */}
+      {(() => {
+        if (sessions.length === 0 || quizSets.length === 0) return null;
+        // Find the lowest accuracy session
+        const lowestSession = [...sessions].sort((a, b) => (a.accuracy || 0) - (b.accuracy || 0))[0];
+        const relatedSet = quizSets.find(q => q.id === lowestSession.quiz_set_id);
+        
+        if (!relatedSet || (lowestSession.accuracy || 0) > 80) return null; // No weak points found
+
+        return (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="card" style={{ marginBottom: '3rem', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05), transparent)', borderColor: 'rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Zap size={20} color="#ef4444" />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', color: '#ef4444', marginBottom: '0.25rem' }}>AI Forge Recommendation</h3>
+              <p style={{ color: 'var(--text)', lineHeight: 1.5, fontSize: '0.9rem', marginBottom: '1rem' }}>
+                We noticed you scored <span style={{ fontWeight: 700, color: '#ef4444' }}>{Math.round(lowestSession.accuracy || 0)}%</span> on <span style={{ fontWeight: 600 }}>{relatedSet.title}</span>. A quick 10-minute focus session could turn this weakness into a strength.
+              </p>
+              <Link href={`/practice/${relatedSet.id}`} className="btn btn-primary btn-sm" style={{ background: '#ef4444', color: '#fff', borderColor: '#ef4444' }}>
+                Start Refresher Session <ArrowRight size={14} />
+              </Link>
+            </div>
+          </motion.div>
+        );
+      })()}
+
+      {/* Mastery Heatmap */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card" style={{ marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem' }}>90-Day Forge Heatmap</h3>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Daily activity intensity</span>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '100%', overflow: 'hidden' }}>
+          {heatmapCells.map((bg, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.2, zIndex: 10 }}
+              style={{
+                width: 'calc(100% / 31 - 4px)',
+                minWidth: 14,
+                aspectRatio: '1/1',
+                background: bg,
+                borderRadius: 2,
+                cursor: 'pointer'
+              }}
+            />
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', fontSize: '0.75rem', color: 'var(--text-muted)', justifyContent: 'flex-end' }}>
+          <span>Less</span>
+          <div style={{ width: 10, height: 10, background: 'var(--surface-3)', borderRadius: 2 }} />
+          <div style={{ width: 10, height: 10, background: 'var(--ember-subtle)', borderRadius: 2 }} />
+          <div style={{ width: 10, height: 10, background: 'var(--ember-dim)', borderRadius: 2 }} />
+          <div style={{ width: 10, height: 10, background: 'var(--ember)', borderRadius: 2 }} />
+          <span>More</span>
+        </div>
+      </motion.div>
 
       {/* Content grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

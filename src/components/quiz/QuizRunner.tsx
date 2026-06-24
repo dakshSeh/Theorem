@@ -18,6 +18,57 @@ export interface SessionResult {
   timeTakenSecs: number;
 }
 
+// Lazy singleton AudioContext to avoid leaking resources
+let audioCtx: AudioContext | null = null;
+const getAudioCtx = (): AudioContext | null => {
+  if (audioCtx) return audioCtx;
+  const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContextCtor) return null;
+  audioCtx = new AudioContextCtor();
+  return audioCtx;
+};
+
+// Simple Web Audio API synthesizer for UI sounds
+const playSound = (type: 'click' | 'correct' | 'incorrect') => {
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.05);
+    } else if (type === 'correct') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(500, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    } else if (type === 'incorrect') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.15);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.15);
+    }
+  } catch (e) {
+    // Ignore audio errors if browser blocks it
+  }
+};
+
 export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onComplete }: Props) {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<SessionResult[]>([]);
@@ -61,8 +112,14 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
 
   const handleSelect = (answer: string) => {
     if (revealed) return;
+    playSound('click');
     setSelected(answer);
-    if (mode === 'practice') setRevealed(true);
+    if (mode === 'practice') {
+      setRevealed(true);
+      const isCorrect = answer === (options?.find(o => o.is_correct)?.label || q.answer);
+      if (isCorrect) setTimeout(() => playSound('correct'), 150);
+      else setTimeout(() => playSound('incorrect'), 150);
+    }
   };
 
   const handleNext = () => {
@@ -192,15 +249,18 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
           {isMCQ && options && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {options.map(opt => (
-                <button
+                <motion.button
                   key={opt.label}
                   onClick={() => handleSelect(opt.label)}
+                  whileHover={!revealed ? { scale: 1.01 } : {}}
+                  whileTap={!revealed ? { scale: 0.98 } : {}}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.75rem',
                     padding: '0.75rem 1rem', borderRadius: 'var(--radius)',
                     cursor: revealed ? 'default' : 'pointer',
                     textAlign: 'left', font: 'inherit', fontSize: '0.9rem',
                     transition: 'all 0.2s',
+                    boxShadow: revealed && opt.is_correct ? '0 0 15px rgba(34,197,94,0.3)' : 'none',
                     ...getOptionStyle(opt),
                   }}
                 >
@@ -210,7 +270,7 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
                   <span style={{ flex: 1 }}>{opt.text}</span>
                   {revealed && opt.is_correct && <CheckCircle size={16} color="var(--success)" />}
                   {revealed && selected === opt.label && !opt.is_correct && <XCircle size={16} color="var(--error)" />}
-                </button>
+                </motion.button>
               ))}
             </div>
           )}
@@ -265,10 +325,10 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
             style={{
               padding: '0.75rem 1rem',
               borderRadius: 'var(--radius)',
-              background: answers.length > 0 && answers[answers.length - 1]?.isCorrect
+              background: selected === (options?.find(o => o.is_correct)?.label || q.answer)
                 ? 'rgba(34,197,94,0.08)'
                 : 'rgba(239,68,68,0.08)',
-              border: `1px solid ${answers.length > 0 && answers[answers.length - 1]?.isCorrect
+              border: `1px solid ${selected === (options?.find(o => o.is_correct)?.label || q.answer)
                 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
             }}
           >

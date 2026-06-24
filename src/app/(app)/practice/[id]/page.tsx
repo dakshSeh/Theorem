@@ -99,9 +99,11 @@ export default function PracticePage() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: 900, margin: '0 auto' }}>
-      <Link href="/saved" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.875rem', textDecoration: 'none', marginBottom: '2rem', transition: 'color 0.2s' }}>
-        <ArrowLeft size={14} /> Back to Saved
-      </Link>
+      {!sessionStarted && (
+        <Link href="/saved" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.875rem', textDecoration: 'none', marginBottom: '2rem', transition: 'color 0.2s' }}>
+          <ArrowLeft size={14} /> Back to Saved
+        </Link>
+      )}
 
       {!sessionStarted ? (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="card card-ember">
@@ -150,25 +152,67 @@ export default function PracticePage() {
           </div>
         </motion.div>
       ) : (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>{quizSet.title}</h2>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {quizMode === 'practice' ? 'Practice Session' : 'Exam Simulation'}
-              </span>
+        quizMode === 'exam' ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#0a0a0a', zIndex: 9999, overflowY: 'auto', color: '#e5e5e5' }}
+          >
+            <div style={{
+              maxWidth: 800,
+              margin: '0 auto',
+              padding: 'clamp(1.5rem, 4vw, 4rem) clamp(1rem, 3vw, 2rem)',
+              '--text': '#F8F5F0',
+              '--text-muted': '#B3B0AA',
+              '--text-dim': '#7A7874',
+              '--surface': '#262626',
+              '--surface-2': '#2F2E2C',
+              '--surface-3': '#3D3B39',
+              '--border': '#3D3B39',
+              '--border-2': '#4A4846',
+              '--bg': '#1E1E1E',
+              '--surface-glass': 'rgba(38, 38, 38, 0.55)',
+            } as React.CSSProperties}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.2rem', marginBottom: '0.2rem', color: '#fff' }}>{quizSet.title}</h2>
+                  <span style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Exam Simulation — Focus Mode
+                  </span>
+                </div>
+                <button style={{ color: '#888', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={() => setSessionStarted(false)}>
+                  <X size={16} /> End Simulation
+                </button>
+              </div>
+              <QuizRunner
+                questions={questions}
+                mode={quizMode || 'exam'}
+                timeLimitMinutes={Math.max(10, questions.length * 1.5)}
+                onComplete={handleSessionComplete}
+              />
             </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => setSessionStarted(false)}>
-              <X size={14} /> Exit
-            </button>
+          </motion.div>
+        ) : (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>{quizSet.title}</h2>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Practice Session
+                </span>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setSessionStarted(false)}>
+                <X size={14} /> Exit
+              </button>
+            </div>
+            <QuizRunner
+              questions={questions}
+              mode={quizMode || 'practice'}
+              timeLimitMinutes={Math.max(10, questions.length * 1.5)}
+              onComplete={handleSessionComplete}
+            />
           </div>
-          <QuizRunner
-            questions={questions}
-            mode={quizMode || 'practice'}
-            timeLimitMinutes={Math.max(10, questions.length * 1.5)} // 1.5 mins per question roughly
-            onComplete={handleSessionComplete}
-          />
-        </div>
+        )
       )}
     </div>
   );

@@ -2,8 +2,9 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import TheoremLogo from '@/components/ui/TheoremLogo';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -52,8 +53,8 @@ export default function SignupPage() {
       >
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            <div style={{ width: 32, height: 32, background: 'var(--ember)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Flame size={18} color="#fff" />
+            <div style={{ width: 32, height: 32, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <TheoremLogo size={18} color="var(--text)" />
             </div>
             <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text)' }}>Theorem</span>
           </Link>

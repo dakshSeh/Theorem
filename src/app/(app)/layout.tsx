@@ -4,12 +4,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Flame, LayoutDashboard, Zap, BarChart2,
+  LayoutDashboard, Zap, BarChart2,
   BookMarked, LogOut, User, Menu, X, ChevronRight,
   BookOpen, Layers,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import TheoremLogo from '@/components/ui/TheoremLogo';
 
 const NAV_ITEMS = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', description: 'Overview & Stats' },
@@ -55,8 +56,8 @@ function Sidebar({ userName, isOpen, setIsOpen }: { userName: string, isOpen: bo
         {/* Logo and close button */}
         <div style={{ padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
-          <div style={{ width: 28, height: 28, background: 'var(--ember)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Flame size={15} color="#fff" />
+          <div style={{ width: 28, height: 28, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <TheoremLogo size={15} color="var(--text)" />
           </div>
           <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>Theorem</span>
         </Link>
@@ -208,8 +209,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-              <div style={{ width: 24, height: 24, background: 'var(--ember)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Flame size={14} color="#fff" />
+              <div style={{ width: 24, height: 24, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TheoremLogo size={14} color="var(--text)" />
               </div>
             </Link>
             {currentPage && (
