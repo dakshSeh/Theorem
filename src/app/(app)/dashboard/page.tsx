@@ -68,27 +68,34 @@ export default function DashboardPage() {
     accuracy: s.accuracy || 0,
   }));
 
-  // Pre-compute heatmap cell backgrounds deterministically to avoid
-  // Math.random()-induced flickering on every re-render.
   const heatmapCells = useMemo(() => {
-    return Array.from({ length: 90 }).map((_, i) => {
-      // Knuth multiplicative hash → deterministic 0-99 value per cell
-      const hash = ((i + 1) * 2654435761) >>> 0;
-      const rand = (hash % 100) / 100;
-
-      // Last 4 cells are always "hot" when there are sessions
-      if (sessions.length > 0 && i > 85) return 'var(--ember)';
-
-      const isActive = sessions.length > 0 && rand > 0.7;
-      if (!isActive) return 'var(--surface-3)';
-
-      // Secondary hash for intensity
-      const intensity = ((hash >>> 8) % 100) / 100;
-      if (intensity > 0.8) return 'var(--ember)';
-      if (intensity > 0.4) return 'var(--ember-dim)';
-      return 'var(--ember-subtle)';
+    // Map actual sessions to dates
+    const dateCounts: Record<string, number> = {};
+    sessions.forEach(s => {
+      if (s.completed_at) {
+        const d = new Date(s.completed_at).toISOString().split('T')[0];
+        dateCounts[d] = (dateCounts[d] || 0) + 1;
+      }
     });
-  }, [sessions.length]);
+
+    const cells = [];
+    const today = new Date();
+    // 90 days ago
+    for (let i = 89; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const count = dateCounts[dateStr] || 0;
+      
+      let bg = 'var(--surface-3)'; // default (0)
+      if (count === 1) bg = 'var(--ember-subtle)';
+      else if (count === 2) bg = 'var(--ember-dim)';
+      else if (count >= 3) bg = 'var(--ember)';
+      
+      cells.push({ date: dateStr, count, bg });
+    }
+    return cells;
+  }, [sessions]);
 
   return (
     <div style={{ padding: '2rem', maxWidth: 1100 }}>
@@ -173,28 +180,33 @@ export default function DashboardPage() {
           <h3 style={{ fontSize: '1.1rem' }}>90-Day Forge Heatmap</h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Daily activity intensity</span>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '100%', overflow: 'hidden' }}>
-          {heatmapCells.map((bg, i) => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxWidth: '100%', overflow: 'hidden', padding: '0.5rem' }}>
+          {heatmapCells.map((cell, i) => (
             <motion.div
               key={i}
-              whileHover={{ scale: 1.2, zIndex: 10 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: i * 0.005, type: 'spring', stiffness: 200, damping: 20 }}
+              title={`${cell.count} sessions on ${new Date(cell.date).toLocaleDateString()}`}
+              whileHover={{ scale: 1.25, zIndex: 10, boxShadow: '0 0 10px var(--ember-glow)' }}
               style={{
-                width: 'calc(100% / 31 - 4px)',
-                minWidth: 14,
+                width: 'calc(100% / 31 - 6px)',
+                minWidth: 12,
                 aspectRatio: '1/1',
-                background: bg,
-                borderRadius: 2,
-                cursor: 'pointer'
+                background: cell.bg,
+                borderRadius: '50%',
+                cursor: 'pointer',
+                border: cell.count > 0 ? '1px solid var(--ember-border)' : '1px solid transparent'
               }}
             />
           ))}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', fontSize: '0.75rem', color: 'var(--text-muted)', justifyContent: 'flex-end' }}>
           <span>Less</span>
-          <div style={{ width: 10, height: 10, background: 'var(--surface-3)', borderRadius: 2 }} />
-          <div style={{ width: 10, height: 10, background: 'var(--ember-subtle)', borderRadius: 2 }} />
-          <div style={{ width: 10, height: 10, background: 'var(--ember-dim)', borderRadius: 2 }} />
-          <div style={{ width: 10, height: 10, background: 'var(--ember)', borderRadius: 2 }} />
+          <div style={{ width: 10, height: 10, background: 'var(--surface-3)', borderRadius: '50%' }} />
+          <div style={{ width: 10, height: 10, background: 'var(--ember-subtle)', borderRadius: '50%' }} />
+          <div style={{ width: 10, height: 10, background: 'var(--ember-dim)', borderRadius: '50%' }} />
+          <div style={{ width: 10, height: 10, background: 'var(--ember)', borderRadius: '50%' }} />
           <span>More</span>
         </div>
       </motion.div>

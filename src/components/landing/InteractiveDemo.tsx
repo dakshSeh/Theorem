@@ -41,8 +41,8 @@ export default function InteractiveDemo() {
       if (data.questions && data.questions.length > 0) {
         setQuestions(data.questions);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }

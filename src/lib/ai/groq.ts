@@ -25,6 +25,8 @@ CRITICAL RULES:
 4. Questions must be syllabus-relevant and academically accurate.
 5. Each MCQ must have exactly 4 options (A, B, C, D) with exactly one correct answer.
 6. Explanations must be concise and educational (2-3 sentences).
+7. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
+8. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
 
 QUESTION TYPE DISTRIBUTION (approximate percentages):
 ${typeBreakdown || '  - Mix of MCQ and short answer questions'}
@@ -98,6 +100,8 @@ CRITICAL RULES:
 3. ${difficultyInstruction}
 4. Each MCQ must have exactly 4 options (A, B, C, D) with exactly one correct answer.
 5. Explanations must be concise and educational (2-3 sentences).
+6. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
+7. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
 
 QUESTION TYPE DISTRIBUTION (approximate percentages):
 ${typeBreakdown || '  - Mix of MCQ and short answer questions'}
@@ -156,7 +160,7 @@ export async function generateQuestionsWithAI(
     body: JSON.stringify({
       model: MODEL,
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
+      temperature: 0.8,
       max_tokens: 8000,
     }),
   });

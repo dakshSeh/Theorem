@@ -21,8 +21,11 @@ export interface SessionResult {
 // Lazy singleton AudioContext to avoid leaking resources
 let audioCtx: AudioContext | null = null;
 const getAudioCtx = (): AudioContext | null => {
-  if (audioCtx) return audioCtx;
-  const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+  if (audioCtx) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  const AudioContextCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AudioContextCtor) return null;
   audioCtx = new AudioContextCtor();
   return audioCtx;
@@ -64,7 +67,7 @@ const playSound = (type: 'click' | 'correct' | 'incorrect') => {
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.15);
     }
-  } catch (e) {
+  } catch {
     // Ignore audio errors if browser blocks it
   }
 };
@@ -317,7 +320,7 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
       </div>
 
       {/* Practice feedback */}
-      {mode === 'practice' && revealed && isMCQ && (
+      {mode === 'practice' && revealed && (
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -325,11 +328,15 @@ export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onC
             style={{
               padding: '0.75rem 1rem',
               borderRadius: 'var(--radius)',
-              background: selected === (options?.find(o => o.is_correct)?.label || q.answer)
-                ? 'rgba(34,197,94,0.08)'
-                : 'rgba(239,68,68,0.08)',
-              border: `1px solid ${selected === (options?.find(o => o.is_correct)?.label || q.answer)
-                ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+              background: selected === null 
+                ? 'var(--surface-2)' 
+                : selected === (options?.find(o => o.is_correct)?.label || q.answer)
+                  ? 'rgba(34,197,94,0.08)'
+                  : 'rgba(239,68,68,0.08)',
+              border: `1px solid ${selected === null 
+                ? 'var(--border)' 
+                : selected === (options?.find(o => o.is_correct)?.label || q.answer)
+                  ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
             }}
           >
             {q.explanation && (

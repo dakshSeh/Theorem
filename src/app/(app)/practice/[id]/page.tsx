@@ -172,6 +172,13 @@ export default function PracticePage() {
               '--border-2': '#4A4846',
               '--bg': '#1E1E1E',
               '--surface-glass': 'rgba(38, 38, 38, 0.55)',
+              '--ember': '#f97316',
+              '--ember-dim': 'rgba(249, 115, 22, 0.5)',
+              '--ember-subtle': 'rgba(249, 115, 22, 0.1)',
+              '--ember-border': 'rgba(249, 115, 22, 0.2)',
+              '--ember-glow': 'rgba(249, 115, 22, 0.15)',
+              '--error': '#ef4444',
+              '--success': '#22c55e',
             } as React.CSSProperties}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
                 <div>
