@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InteractiveDemo from '@/components/landing/InteractiveDemo';
 import MagneticButton from '@/components/ui/MagneticButton';
-import { ChevronDown, Upload, Cpu, BarChart2, BookOpen, Zap, Shield, ArrowRight } from 'lucide-react';
+import { ChevronDown, Upload, Cpu, BarChart2, BookOpen, Zap, Shield, ArrowRight, Menu, X } from 'lucide-react';
 import TheoremLogo from '@/components/ui/TheoremLogo';
 
 const FEATURES = [
@@ -42,6 +42,7 @@ const REVIEWS = [
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -52,37 +53,66 @@ function Navbar() {
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: scrolled ? 'var(--surface-glass)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(24px)' : 'none',
-      WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
-      borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
-      boxShadow: scrolled ? '0 1px 2px rgba(0,0,0,0.05), inset 0 -1px 0 rgba(255,255,255,0.1)' : 'none',
+      background: scrolled || menuOpen ? 'var(--surface-glass)' : 'transparent',
+      backdropFilter: scrolled || menuOpen ? 'blur(24px)' : 'none',
+      WebkitBackdropFilter: scrolled || menuOpen ? 'blur(24px)' : 'none',
+      borderBottom: scrolled || menuOpen ? '1px solid var(--border)' : '1px solid transparent',
+      boxShadow: scrolled || menuOpen ? '0 1px 2px rgba(0,0,0,0.05), inset 0 -1px 0 rgba(255,255,255,0.1)' : 'none',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     }}>
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '64px' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-          <div style={{ width: 28, height: 28, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <TheoremLogo size={16} color="var(--text)" />
-          </div>
-          <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>Theorem</span>
-        </Link>
+      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '64px', paddingLeft: 'clamp(1rem, 5vw, 1.5rem)', paddingRight: 'clamp(1rem, 5vw, 1.5rem)' }}>
+        
+        <div className="flex items-center gap-3">
+          {/* Hamburger (Mobile only) */}
+          <button className="md:hidden btn btn-ghost btn-icon" onClick={() => setMenuOpen(!menuOpen)} style={{ padding: '0.25rem', marginLeft: '-0.25rem' }}>
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+            <div style={{ width: 28, height: 28, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <TheoremLogo size={16} color="var(--text)" />
+            </div>
+            <span className="hidden sm:block" style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>Theorem</span>
+          </Link>
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="hidden md:flex">
-          <a href="#features" className="btn btn-ghost btn-sm">Features</a>
-          <a href="#how-it-works" className="btn btn-ghost btn-sm">How it works</a>
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-1">
+          <Link href="#features" className="btn btn-ghost btn-sm">Features</Link>
+          <Link href="#how-it-works" className="btn btn-ghost btn-sm">How it works</Link>
           <Link href="/about" className="btn btn-ghost btn-sm">About</Link>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <ThemeToggle />
           <div style={{ width: '1px', height: '24px', background: 'var(--border)' }} className="hidden md:block" />
-          <Link href="/login" className="btn btn-ghost btn-sm hidden sm:inline-flex">Sign in</Link>
-          <MagneticButton asLink href="/signup" className="btn btn-primary btn-sm">
+          <Link href="/login" className="btn btn-ghost btn-sm">Sign in</Link>
+          <MagneticButton asLink href="/signup" className="btn btn-primary btn-sm" style={{ padding: '0.4rem 0.75rem' }}>
             <span className="hidden sm:inline">Start for free</span>
-            <span className="sm:hidden">Start</span> <ArrowRight size={14} />
+            <span className="sm:hidden">Start</span>
           </MagneticButton>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden"
+            style={{ overflow: 'hidden', background: 'var(--surface)' }}
+          >
+            <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', borderBottom: '1px solid var(--border)' }}>
+              <Link href="#features" onClick={() => setMenuOpen(false)} className="btn btn-ghost" style={{ justifyContent: 'flex-start' }}>Features</Link>
+              <Link href="#how-it-works" onClick={() => setMenuOpen(false)} className="btn btn-ghost" style={{ justifyContent: 'flex-start' }}>How it works</Link>
+              <Link href="/about" onClick={() => setMenuOpen(false)} className="btn btn-ghost" style={{ justifyContent: 'flex-start' }}>About</Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

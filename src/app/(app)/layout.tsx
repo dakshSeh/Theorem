@@ -201,8 +201,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar userName={userName} isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <main className="main-content">
         {/* Mobile top nav */}
-        <div className="md:hidden" style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        <div className="md:hidden flex items-center justify-between" style={{
           padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)',
           background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 30,
           backdropFilter: 'blur(12px)',
