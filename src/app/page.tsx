@@ -7,6 +7,10 @@ import InteractiveDemo from '@/components/landing/InteractiveDemo';
 import MagneticButton from '@/components/ui/MagneticButton';
 import { ChevronDown, Upload, Cpu, BarChart2, BookOpen, Zap, Shield, ArrowRight, Menu, X } from 'lucide-react';
 import TheoremLogo from '@/components/ui/TheoremLogo';
+import dynamic from 'next/dynamic';
+
+const DotField = dynamic(() => import('@/components/ui/DotField'), { ssr: false });
+const SideRays = dynamic(() => import('@/components/ui/SideRays'), { ssr: false });
 
 const FEATURES = [
   { icon: Upload, title: 'Smart PDF Upload', desc: 'Drag & drop PDFs. We extract text, identify subject and chapter, and find key concepts automatically.' },
@@ -117,95 +121,6 @@ function Navbar() {
   );
 }
 
-function EditorialGraphic() {
-  return (
-    <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-      {/* Background Glows */}
-      <motion.div
-        animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute', width: '90%', height: '90%', borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--ember-subtle) 0%, transparent 70%)',
-          filter: 'blur(40px)', zIndex: 0
-        }}
-      />
-      
-      {/* The Extractor System */}
-      <div className="relative w-full h-[85%] flex flex-row items-center justify-between" style={{ zIndex: 1 }}>
-        
-        {/* Source Document */}
-        <div style={{
-          position: 'relative', width: '45%', height: '100%',
-          background: 'var(--surface)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)',
-          padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '1rem'
-        }}>
-          {/* Skeleton Text Lines */}
-          {[...Array(8)].map((_, i) => (
-            <div key={i} style={{ width: i % 3 === 0 ? '70%' : (i === 7 ? '50%' : '100%'), height: 8, background: 'var(--surface-3)', borderRadius: 4 }} />
-          ))}
-
-          {/* Scanner Line */}
-          <motion.div
-            animate={{ top: ['0%', '100%', '0%'] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-            style={{
-              position: 'absolute', left: 0, right: 0, height: 2,
-              background: 'var(--ember)', boxShadow: '0 0 10px var(--ember), 0 0 20px var(--ember-glow)',
-              zIndex: 2
-            }}
-          />
-        </div>
-
-        {/* Floating Extraction Nodes */}
-        <div className="absolute left-[45%] right-[45%] top-0 bottom-0 pointer-events-none" style={{ zIndex: 3 }}>
-           {[...Array(4)].map((_, i) => (
-             <motion.div
-               key={i}
-               animate={{ x: [0, 60], y: [0, (i - 1.5) * 30], opacity: [0, 1, 0], scale: [0.5, 1, 0.5], rotate: [0, 90] }}
-               transition={{ duration: 2, repeat: Infinity, delay: i * 0.5, ease: 'easeInOut' }}
-               style={{
-                 position: 'absolute', top: '50%', left: '10%', width: 14, height: 14,
-                 background: i % 2 === 0 ? 'var(--ember)' : 'var(--highlight)',
-                 borderRadius: i % 2 === 0 ? '50%' : '2px', rotate: 45,
-                 boxShadow: '0 0 12px currentColor'
-               }}
-             />
-           ))}
-        </div>
-
-        {/* Generated Quiz Cards */}
-        <div style={{ width: '45%', height: '90%', display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'center' }}>
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatType: 'reverse', delay: i * 0.5 }}
-              style={{
-                width: '100%', background: 'var(--surface)', border: '1px solid var(--ember-border)',
-                borderRadius: 'var(--radius)', padding: '1rem', boxShadow: 'var(--shadow)',
-                display: 'flex', flexDirection: 'column', gap: '0.6rem'
-              }}
-            >
-              <div style={{ width: '80%', height: 6, background: 'var(--text-muted)', borderRadius: 4 }} />
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', border: '1px solid var(--border)' }} />
-                <div style={{ width: '60%', height: 4, background: 'var(--surface-3)', borderRadius: 4 }} />
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ember-subtle)', border: '1px solid var(--ember)' }} />
-                <div style={{ width: '50%', height: 4, background: 'var(--ember-dim)', borderRadius: 4 }} />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function AccordionItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -231,6 +146,78 @@ function AccordionItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+function HeroDotField() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const gradientFrom = isDarkMode ? 'rgba(124, 157, 150, 0.6)' : 'rgba(70, 95, 90, 0.95)'; // darker for light mode
+  const gradientTo = isDarkMode ? 'rgba(98, 128, 122, 0.4)' : 'rgba(50, 75, 70, 0.85)'; // darker for light mode
+  const glowColor = isDarkMode ? 'rgba(124, 157, 150, 0.15)' : 'rgba(124, 157, 150, 0.12)';
+  const dotRadius = isDarkMode ? 1.5 : 2.2;
+
+  return (
+    <DotField
+      dotRadius={dotRadius}
+      dotSpacing={14}
+      cursorRadius={500}
+      cursorForce={0.1}
+      bulgeOnly={true}
+      bulgeStrength={67}
+      glowRadius={200}
+      sparkle={true}
+      waveAmplitude={0}
+      gradientFrom={gradientFrom}
+      gradientTo={gradientTo}
+      glowColor={glowColor}
+    />
+  );
+}
+
+function HeroSideRays() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const rayColor1 = isDarkMode ? '#7C9D96' : '#62807A'; // --ember / --ember-dim
+  const rayColor2 = isDarkMode ? '#94B8B0' : '#7C9D96'; // --ember-glow / --ember
+  const intensity = isDarkMode ? 1.5 : 2.0;
+
+  return (
+    <SideRays
+      speed={2.5}
+      rayColor1={rayColor1}
+      rayColor2={rayColor2}
+      intensity={intensity}
+      spread={2}
+      origin="top-right"
+      tilt={0}
+      saturation={1.5}
+      blend={0.75}
+      falloff={1.6}
+      opacity={0.6}
+    />
+  );
+}
+
 export default function LandingPage() {
 
   return (
@@ -238,64 +225,36 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="grid-bg" style={{
-        minHeight: '90vh', display: 'flex', alignItems: 'center',
-        position: 'relative', paddingTop: '80px', overflow: 'hidden',
+      <section style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', overflow: 'hidden',
       }}>
-        <div className="noise-texture" />
+        {/* SideRays Background (Behind DotField) */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+          <HeroSideRays />
+        </div>
         
-        {/* Soft, Pop Gradients behind the text */}
-        <motion.div
-          animate={{ opacity: [0.3, 0.5, 0.3], scale: [1, 1.1, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            position: 'absolute', top: '10%', left: '-10%', width: '50vw', height: '50vw',
-            background: 'radial-gradient(circle, var(--ember-border) 0%, transparent 60%)',
-            filter: 'blur(100px)', zIndex: 0, pointerEvents: 'none'
-          }}
-        />
-        <motion.div
-          animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.2, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          style={{
-            position: 'absolute', bottom: '-10%', right: '10%', width: '60vw', height: '60vw',
-            background: 'radial-gradient(circle, var(--highlight) 0%, transparent 60%)',
-            filter: 'blur(120px)', zIndex: 0, pointerEvents: 'none'
-          }}
-        />
+        {/* DotField Background */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+          <HeroDotField />
+        </div>
 
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4rem', flexWrap: 'wrap', zIndex: 1, position: 'relative' }}>
+        {/* Hero Content */}
+        <div style={{ position: 'relative', zIndex: 10, width: '100%' }} className="container mx-auto px-6 pt-32 pb-24 text-center flex flex-col items-center">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{ maxWidth: 640, flex: '1 1 400px' }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2.5rem' }}
           >
             <h1 className="hero-title" style={{ lineHeight: 1.1 }}>
               The <span style={{ color: 'var(--ember)' }}>Smarter</span> Way to Revise <br className="hidden md:block" />
               <span style={{ color: 'var(--highlight)' }}>Any Topic</span>
             </h1>
 
-            <p className="editorial-text" style={{ marginBottom: '3rem' }}>
-              Transform your class notes and PDFs into <span style={{ color: 'var(--ember)' }}>authentic assessments</span> instantly. 
-              No hallucinations, no off-syllabus filler—just the exact practice you need.
-            </p>
-
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <MagneticButton asLink href="/signup" className="btn btn-primary btn-lg" style={{ fontSize: '1.1rem', padding: '1rem 2.5rem' }}>
-                Start for free
-              </MagneticButton>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-dim)', marginLeft: 0 }}>No credit card required.</span>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex-1 min-w-[280px] w-full flex justify-center mt-8 md:mt-0"
-          >
-            <EditorialGraphic />
+            <MagneticButton asLink href="/signup" className="btn btn-primary btn-lg" style={{ fontSize: '1.1rem', padding: '1rem 2.5rem' }}>
+              Start for free
+            </MagneticButton>
           </motion.div>
         </div>
       </section>

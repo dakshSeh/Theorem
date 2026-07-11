@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, SlidersHorizontal } from 'lucide-react';
+import { Zap, SlidersHorizontal, FileText, Lightbulb } from 'lucide-react';
 import type { GenerationOptions, QuestionType, Difficulty } from '@/lib/types';
 
 interface Props {
@@ -82,31 +82,45 @@ export default function GeneratorControls({ onGenerate, loading, pdfUploaded }: 
       </div>
 
       {/* Mode Selector */}
-      <div style={{ display: 'flex', gap: '0.25rem', padding: '0.25rem', background: 'var(--surface-2)', borderRadius: 'var(--radius)', marginBottom: '0.25rem' }}>
-        <button
-          onClick={() => setMode('pdf')}
-          style={{
-            flex: 1, padding: '0.4rem', border: 'none', borderRadius: 'calc(var(--radius) - 2px)',
-            background: mode === 'pdf' ? 'var(--surface)' : 'transparent',
-            color: mode === 'pdf' ? 'var(--text)' : 'var(--text-muted)',
-            fontWeight: mode === 'pdf' ? 600 : 500, fontSize: '0.78rem', cursor: 'pointer', font: 'inherit',
-            transition: 'all 0.2s',
-          }}
-        >
-          PDF Upload
-        </button>
-        <button
-          onClick={() => setMode('topic')}
-          style={{
-            flex: 1, padding: '0.4rem', border: 'none', borderRadius: 'calc(var(--radius) - 2px)',
-            background: mode === 'topic' ? 'var(--surface)' : 'transparent',
-            color: mode === 'topic' ? 'var(--text)' : 'var(--text-muted)',
-            fontWeight: mode === 'topic' ? 600 : 500, fontSize: '0.78rem', cursor: 'pointer', font: 'inherit',
-            transition: 'all 0.2s',
-          }}
-        >
-          Topic / Class
-        </button>
+      <div>
+        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Generation Method
+        </label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <button
+            onClick={() => setMode('pdf')}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem',
+              padding: '1rem', borderRadius: 'var(--radius-lg)',
+              border: `2px solid ${mode === 'pdf' ? 'var(--ember)' : 'var(--border)'}`,
+              background: mode === 'pdf' ? 'var(--ember-subtle)' : 'var(--surface-2)',
+              cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
+            }}
+          >
+            <FileText size={20} color={mode === 'pdf' ? 'var(--ember)' : 'var(--text-muted)'} />
+            <div>
+              <div style={{ fontWeight: 600, color: mode === 'pdf' ? 'var(--ember)' : 'var(--text)', fontSize: '0.9rem', marginBottom: '0.2rem' }}>From PDF</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Extract from your study material</div>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => setMode('topic')}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem',
+              padding: '1rem', borderRadius: 'var(--radius-lg)',
+              border: `2px solid ${mode === 'topic' ? 'var(--ember)' : 'var(--border)'}`,
+              background: mode === 'topic' ? 'var(--ember-subtle)' : 'var(--surface-2)',
+              cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
+            }}
+          >
+            <Lightbulb size={20} color={mode === 'topic' ? 'var(--ember)' : 'var(--text-muted)'} />
+            <div>
+              <div style={{ fontWeight: 600, color: mode === 'topic' ? 'var(--ember)' : 'var(--text)', fontSize: '0.9rem', marginBottom: '0.2rem' }}>From Topic</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Generate from curriculum</div>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Title */}

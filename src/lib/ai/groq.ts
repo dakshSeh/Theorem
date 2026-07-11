@@ -21,9 +21,9 @@ Your task is to generate exactly ${questionCount} high-quality, exam-ready quest
 CRITICAL RULES:
 1. Questions must be strictly based on the provided text. No hallucinated facts.
 2. Use authentic CBSE board exam wording and style.
-3. ${difficultyInstruction}
-4. Questions must be syllabus-relevant and academically accurate.
-5. Each MCQ must have exactly 4 options (A, B, C, D) with exactly one correct answer.
+3. EXACT DIFFICULTY: ${difficultyInstruction} You MUST strictly follow the requested difficulty level. Make hard questions genuinely complex and easy questions straightforward.
+4. ABSOLUTE CORRECTNESS: Every single question's answer MUST be 100% factually accurate and flawless. Double-check your logic.
+5. For MCQs: Provide exactly 4 options (A, B, C, D) with exactly ONE correct answer. VARIATION: The incorrect options (distractors) must be highly varied, plausible but clearly wrong. Randomize which option (A, B, C, or D) is the correct one across questions.
 6. Explanations must be concise and educational (2-3 sentences).
 7. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
 8. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
@@ -97,11 +97,12 @@ Your task is to generate exactly ${questionCount} high-quality, syllabus-relevan
 CRITICAL RULES:
 1. Questions must be highly relevant, syllabus-accurate, and aligned with standard curriculum models for ${classLevel}.
 2. Use authentic board exam wording and style.
-3. ${difficultyInstruction}
-4. Each MCQ must have exactly 4 options (A, B, C, D) with exactly one correct answer.
-5. Explanations must be concise and educational (2-3 sentences).
-6. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
-7. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
+3. EXACT DIFFICULTY: ${difficultyInstruction} You MUST strictly follow the requested difficulty level. Make hard questions genuinely complex and easy questions straightforward.
+4. ABSOLUTE CORRECTNESS: Every single question's answer MUST be 100% factually accurate and flawless. Double-check your logic.
+5. For MCQs: Provide exactly 4 options (A, B, C, D) with exactly ONE correct answer. VARIATION: The incorrect options (distractors) must be highly varied, plausible but clearly wrong. Randomize which option (A, B, C, or D) is the correct one across questions.
+6. Explanations must be concise and educational (2-3 sentences).
+7. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
+8. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
 
 QUESTION TYPE DISTRIBUTION (approximate percentages):
 ${typeBreakdown || '  - Mix of MCQ and short answer questions'}
