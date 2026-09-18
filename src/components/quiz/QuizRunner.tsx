@@ -77,7 +77,7 @@ const playSound = (type: 'click' | 'correct' | 'incorrect') => {
   }
 };
 
-export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onComplete, onGenerateTargeted }: Props) {
+export default function QuizRunner({ questions, mode, timeLimitMinutes = 30, onComplete, onGenerateTargeted, cognitiveScores }: Props) {
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);

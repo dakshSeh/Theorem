@@ -1,7 +1,16 @@
 import type { GeneratedQuestion, GenerationOptions, QuestionType, Difficulty } from '@/lib/types';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'qwen/qwen3.8-27b';
+const MODEL = 'openai/gpt-oss-20b';
+
+/** Strip <think>…</think> blocks, markdown code fences, and leading/trailing noise from AI output */
+function cleanAIResponse(raw: string): string {
+  return raw
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')  // Remove Qwen thinking blocks
+    .replace(/```json\n?/g, '')                  // Remove ```json fences
+    .replace(/```\n?/g, '')                      // Remove ``` fences
+    .trim();
+}
 
 function buildCBSEPrompt(text: string, options: GenerationOptions): string {
   const { difficulty, questionCount, typeMix } = options;
@@ -28,6 +37,15 @@ CRITICAL RULES:
 7. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
 8. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
 
+ANTI-PATTERN RULES FOR MCQs (CRITICAL):
+To prevent students from guessing answers using test-taking tricks, you MUST obey these rules:
+1. Length Equality: Make all options roughly the same length and level of detail. The correct answer must NOT be noticeably longer or more carefully qualified.
+2. Avoid Convergence/Outliers: Distractors must be genuinely plausible. Do not make the correct answer a combination of traits found in other options, and do not make one option a complete outlier.
+3. Consistent Modifiers: Avoid using absolute words (always/never/all/none) in distractors while using soft language (usually/may/generally) in the correct answer.
+4. Grammatical Consistency: All options must perfectly match the grammar of the question stem. Use the same tense, part of speech, and phrasing style across all four options.
+5. No Opposing Pairs: Do not make two options exact opposites (e.g., "increase" vs "decrease") if one of them is the correct answer.
+6. Banned Options: NEVER use "All of the above" or "None of the above" as an option.
+
 QUESTION TYPE DISTRIBUTION (approximate percentages):
 ${typeBreakdown || '  - Mix of MCQ and short answer questions'}
 
@@ -43,6 +61,7 @@ QUESTION TYPE DEFINITIONS:
 - match_following: Match column A with column B, 1 mark
 
 OUTPUT FORMAT: Respond ONLY with a valid JSON array. No markdown, no explanation outside JSON.
+CRITICAL JSON RULE: You MUST properly escape all double quotes (\\") inside strings. Do not use unescaped double quotes or unescaped newlines inside the JSON string values.
 
 [
   {
@@ -104,6 +123,15 @@ CRITICAL RULES:
 7. Ensure strict adherence to the requested question types. Do NOT generate question types that were not requested.
 8. Uniqueness and Variety: Do not repeat questions or concepts. Each question must test a distinct, unique concept from the material. Use varied sentence structures. Ensure no two questions are similar in meaning or phrasing.
 
+ANTI-PATTERN RULES FOR MCQs (CRITICAL):
+To prevent students from guessing answers using test-taking tricks, you MUST obey these rules:
+1. Length Equality: Make all options roughly the same length and level of detail. The correct answer must NOT be noticeably longer or more carefully qualified.
+2. Avoid Convergence/Outliers: Distractors must be genuinely plausible. Do not make the correct answer a combination of traits found in other options, and do not make one option a complete outlier.
+3. Consistent Modifiers: Avoid using absolute words (always/never/all/none) in distractors while using soft language (usually/may/generally) in the correct answer.
+4. Grammatical Consistency: All options must perfectly match the grammar of the question stem. Use the same tense, part of speech, and phrasing style across all four options.
+5. No Opposing Pairs: Do not make two options exact opposites (e.g., "increase" vs "decrease") if one of them is the correct answer.
+6. Banned Options: NEVER use "All of the above" or "None of the above" as an option.
+
 QUESTION TYPE DISTRIBUTION (approximate percentages):
 ${typeBreakdown || '  - Mix of MCQ and short answer questions'}
 
@@ -119,6 +147,7 @@ QUESTION TYPE DEFINITIONS:
 - match_following: Match column A with column B, 1 mark
 
 OUTPUT FORMAT: Respond ONLY with a valid JSON array. No markdown, no explanation outside JSON.
+CRITICAL JSON RULE: You MUST properly escape all double quotes (\\") inside strings. Do not use unescaped double quotes or unescaped newlines inside the JSON string values.
 
 [
   {
@@ -177,7 +206,7 @@ export async function generateQuestionsWithAI(
   if (!content) throw new Error('No content returned from AI');
 
   // Strip markdown code fences if present
-  const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const cleaned = cleanAIResponse(content);
 
   const questions = JSON.parse(cleaned) as GeneratedQuestion[];
 
@@ -230,7 +259,7 @@ Write the extensive notes now:`;
       model: MODEL,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
-      max_tokens: 6000,
+      max_tokens: 8000,
     }),
   });
 
@@ -297,7 +326,7 @@ Respond with the JSON array now:`;
       model: MODEL,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.2, // Low temperature for consistent grading
-      max_tokens: 4000,
+      max_tokens: 8000,
     }),
   });
 
@@ -311,7 +340,7 @@ Respond with the JSON array now:`;
 
   if (!content) throw new Error('No content returned from AI');
 
-  const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const cleaned = cleanAIResponse(content);
   const results = JSON.parse(cleaned) as { id: string; marksAwarded: number; feedback: string; isCorrect: boolean }[];
   
   return results;
@@ -389,7 +418,7 @@ Respond with ONLY the raw JSON object.`;
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error('No content returned from AI');
 
-  const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const cleaned = cleanAIResponse(content);
   const parsed = JSON.parse(cleaned);
 
   // Normalize questions
@@ -462,7 +491,7 @@ Schema:
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error('No content returned from AI');
 
-  const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const cleaned = cleanAIResponse(content);
   const parsed = JSON.parse(cleaned);
 
   return {
